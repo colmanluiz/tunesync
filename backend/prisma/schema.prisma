@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  name              String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  serviceConnections ServiceConnection[]
+  playlists         Playlist[]
+  playlistSyncs     PlaylistSync[]
+}
+
+model ServiceConnection {
+  id            String   @id @default(cuid())
+  userId        String
+  serviceType   String   // "SPOTIFY", "YOUTUBE", "APPLE_MUSIC", "DEEZER"
+  accessToken   String
+  refreshToken  String?
+  expiresAt     DateTime?
+  serviceUserId String   // ID from the music service
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, serviceType])
+}
+
+model Playlist {
+  id            String         @id @default(cuid())
+  userId        String
+  serviceType   String         // "SPOTIFY", "YOUTUBE", "APPLE_MUSIC", "DEEZER"
+  serviceId     String         // ID from the music service
+  name          String
+  description   String?
+  trackCount    Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tracks        PlaylistTrack[]
+  sourceSyncs   PlaylistSync[] @relation("SourcePlaylist")
+  targetSyncs   PlaylistSync[] @relation("TargetPlaylist")
+
+  @@unique([userId, serviceType, serviceId])
+}
+
+model Track {
+  id            String         @id @default(cuid())
+  serviceType   String         // "SPOTIFY", "YOUTUBE", "APPLE_MUSIC", "DEEZER"
+  serviceId     String         // ID from the music service
+  name          String
+  artist        String
+  album         String?
+  duration      Int?          // Duration in milliseconds
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  playlists     PlaylistTrack[]
+
+  @@unique([serviceType, serviceId])
+}
+
+model PlaylistTrack {
+  id         String   @id @default(cuid())
+  playlistId String
+  trackId    String
+  position   Int
+  addedAt    DateTime @default(now())
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  track      Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, trackId])
+}
+
+model PlaylistSync {
+  id            String   @id @default(cuid())
+  userId        String
+  sourceId      String
+  targetId      String
+  lastSyncedAt  DateTime @default(now())
+  status        String   // "SUCCESS", "FAILED", "IN_PROGRESS"
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourcePlaylist Playlist @relation("SourcePlaylist", fields: [sourceId], references: [id], onDelete: Cascade)
+  targetPlaylist Playlist @relation("TargetPlaylist", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, targetId])
+}
