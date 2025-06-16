@@ -18,4 +18,4 @@ import { SpotifyModule } from './auth/spotify/spotify.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
