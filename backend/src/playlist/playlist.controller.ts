@@ -9,17 +9,17 @@ export class PlaylistController {
 
     @Get('spotify')
     async getSpotifyPlaylists(@Req() req: Request) {
-        const userId = 'cmbzgmimj0000fjjw6trrkt9o';
+        const userId = 'cmc5aljc90000fjfsoiogp7nq';
         const accessToken =
-            'BQDUohsAEs5spi59JpiVPPFkIPZkWBQSH9y-Uc4DZ0nYfsPg-HWjGTJfdZIjJ_leqY_HBNdYkeVdM4k8h7S_gM7Fn-thbii3WQb_o-MAnkm54PY3nMNffsh0vq99JP829sJuX1jsgSp_jx8RIIsNziVaqkZzOqjwdOlNHagOmzdyYJrZO-tXGREyE2ElenJku4Rl6oEJBSOvYWJBzFdf7GpIJa7xyMrqArQEk4PWE5518PhzKhopN_s';
+            'BQC8GNcAH8mQo8vkbxfR6e-u3J5slCeTwB2xp9dzyhcdDLdQ5y3EhHry7Y7mjUjIX6buFnc6x3BQFeMRXuUMhmI2weJq5wBg65tSu8bqUzatkezZMbBj9xotK7Yhe4CAtbGMTuG_LrAFoF4rzG90_-x3Mz9qDvW4QWgSoNMQkHClt6IhtDCnO4Mkk98KDm4vurs8u4sQ6ANh36jb19FxMwWe9IuQ0Ecd6Kqe1q2Rz5GR3Qr3Y9s577s';
         return this.playlistService.getSpotifyPlaylists(userId, accessToken);
     }
 
     @Get('spotify/test')
     async getPlaylistDetails() {
-        const userId = 'cmbzgmimj0000fjjw6trrkt9o';
+        const userId = 'cmc5aljc90000fjfsoiogp7nq';
         const accessToken =
-            'BQDUohsAEs5spi59JpiVPPFkIPZkWBQSH9y-Uc4DZ0nYfsPg-HWjGTJfdZIjJ_leqY_HBNdYkeVdM4k8h7S_gM7Fn-thbii3WQb_o-MAnkm54PY3nMNffsh0vq99JP829sJuX1jsgSp_jx8RIIsNziVaqkZzOqjwdOlNHagOmzdyYJrZO-tXGREyE2ElenJku4Rl6oEJBSOvYWJBzFdf7GpIJa7xyMrqArQEk4PWE5518PhzKhopN_s';
+            'BQC8GNcAH8mQo8vkbxfR6e-u3J5slCeTwB2xp9dzyhcdDLdQ5y3EhHry7Y7mjUjIX6buFnc6x3BQFeMRXuUMhmI2weJq5wBg65tSu8bqUzatkezZMbBj9xotK7Yhe4CAtbGMTuG_LrAFoF4rzG90_-x3Mz9qDvW4QWgSoNMQkHClt6IhtDCnO4Mkk98KDm4vurs8u4sQ6ANh36jb19FxMwWe9IuQ0Ecd6Kqe1q2Rz5GR3Qr3Y9s577s';
         const playlistId = 'cmbzk9me00007fjpvymqeh3te';
 
         return this.playlistService.getPlaylistDetails(
@@ -34,7 +34,7 @@ export class PlaylistController {
         @Body() body: { name: string; description?: string },
         @Req() req: Request,
     ) {
-        const userId = 'cmbzgmimj0000fjjw6trrkt9o';
+        const userId = 'cmc5aljc90000fjfsoiogp7nq';
         const accessToken =
             'BQDUohsAEs5spi59JpiVPPFkIPZkWBQSH9y-Uc4DZ0nYfsPg-HWjGTJfdZIjJ_leqY_HBNdYkeVdM4k8h7S_gM7Fn-thbii3WQb_o-MAnkm54PY3nMNffsh0vq99JP829sJuX1jsgSp_jx8RIIsNziVaqkZzOqjwdOlNHagOmzdyYJrZO-tXGREyE2ElenJku4Rl6oEJBSOvYWJBzFdf7GpIJa7xyMrqArQEk4PWE5518PhzKhopN_s';
 
@@ -52,9 +52,9 @@ export class PlaylistController {
         @Body() body: { trackUris: string[] },
         @Req() req: Request,
     ) {
-        const userId = 'cmbzgmimj0000fjjw6trrkt9o';
+        const userId = 'cmc5aljc90000fjfsoiogp7nq';
         const accessToken =
-            'BQDUohsAEs5spi59JpiVPPFkIPZkWBQSH9y-Uc4DZ0nYfsPg-HWjGTJfdZIjJ_leqY_HBNdYkeVdM4k8h7S_gM7Fn-thbii3WQb_o-MAnkm54PY3nMNffsh0vq99JP829sJuX1jsgSp_jx8RIIsNziVaqkZzOqjwdOlNHagOmzdyYJrZO-tXGREyE2ElenJku4Rl6oEJBSOvYWJBzFdf7GpIJa7xyMrqArQEk4PWE5518PhzKhopN_s';
+            'BQC8GNcAH8mQo8vkbxfR6e-u3J5slCeTwB2xp9dzyhcdDLdQ5y3EhHry7Y7mjUjIX6buFnc6x3BQFeMRXuUMhmI2weJq5wBg65tSu8bqUzatkezZMbBj9xotK7Yhe4CAtbGMTuG_LrAFoF4rzG90_-x3Mz9qDvW4QWgSoNMQkHClt6IhtDCnO4Mkk98KDm4vurs8u4sQ6ANh36jb19FxMwWe9IuQ0Ecd6Kqe1q2Rz5GR3Qr3Y9s577s';
 
         return this.playlistService.addTracksToPlaylist(
             userId,

@@ -18,7 +18,7 @@ export class PlaylistService {
    */
   async getSpotifyPlaylists(userId: string, accessToken: string) {
     try {
-      const connection = await this.prisma.serviceConnection.findUnique({ //perguntar oq ;e isso
+      const connection = await this.prisma.serviceConnection.findUnique({
         where: {
           userId_serviceType: {
             userId,
@@ -66,7 +66,7 @@ export class PlaylistService {
         }),
       );
 
-      return playlists;
+      return data;
     } catch (error) {
       throw new Error(`Failed to fetch Spotify playlists: ${error.message}`);
     }
@@ -258,12 +258,25 @@ export class PlaylistService {
   ) {
     try {
       const playlist = await this.prisma.playlist.findUnique({
-        where: { id: playlistId }
-      })
+        where: { id: playlistId },
+        include: {
+          tracks: {
+            include: { track: true },
+            orderBy: { position: 'asc' },
+          },
+        },
+      });
 
-      const { data: spotifyPlaylist } = await firstValueFrom(
+      console.log(playlist)
+
+      if (!playlist) {
+        throw new Error('Playlist not found');
+      }
+
+      // adicionando musicas na playlist
+      const { data: spotifyResponse } = await firstValueFrom(
         this.httpService.post(
-          `https://api.spotify.com/v1/playlists/${playlist?.serviceId}/tracks`,
+          `https://api.spotify.com/v1/playlists/${playlist.serviceId}/tracks`,
           {
             uris: trackUris
           },
@@ -276,37 +289,83 @@ export class PlaylistService {
         ),
       );
 
-      const updatedPlaylist = await this.prisma.playlist.update({
+      // puxo playlist apos mandar novas musicas pra ela, teoricamente ela vem "atualizada"
+      const { data: updatedSpotifyPlaylist } = await firstValueFrom(
+        this.httpService.get(
+          `https://api.spotify.com/v1/playlists/${playlist.serviceId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
+        ),
+      );
+
+      // atualizo as tracks e a relacao playlistTrack na db tbm
+      const tracks = await Promise.all(
+        updatedSpotifyPlaylist.tracks.items.map(async (item: any, index: number) => {
+          const track = item.track;
+
+          const storedTrack = await this.prisma.track.upsert({
+            where: {
+              serviceType_serviceId: {
+                serviceId: track.id,
+                serviceType: 'SPOTIFY',
+              },
+            },
+            create: {
+              serviceType: 'SPOTIFY',
+              serviceId: track.id,
+              name: track.name,
+              artist: track.artists[0].name, // Using first artist for now
+              album: track.album.name,
+              duration: track.duration_ms,
+            },
+            update: {
+              name: track.name,
+              artist: track.artists[0].name,
+              album: track.album.name,
+              duration: track.duration_ms,
+            },
+          });
+
+          await this.prisma.playlistTrack.upsert({
+            where: {
+              playlistId_trackId: {
+                playlistId,
+                trackId: storedTrack.id,
+              },
+            },
+            create: {
+              playlistId,
+              trackId: storedTrack.id,
+              position: index,
+            },
+            update: {
+              position: index,
+            },
+          });
+
+          return storedTrack;
+        }),
+      );
+
+      // atualizo a playlist na db
+      await this.prisma.playlist.update({
         where: { id: playlistId },
         data: {
-          trackCount: trackUris.length,
+          trackCount: updatedSpotifyPlaylist.tracks.total,
         },
       });
 
-      // if (true) {
-      //   await this.prisma.playlistTrack.upsert({
-      //     where: {
-      //       playlistId_trackId: {
-      //         playlistId,
-      //         trackId: ''
-      //       },
-      //     },
-      //     create: {
-      //       playlistId,
-      //       trackId: '',
-      //       position: 0
-      //     },
-      //     update: {
-      //       position: 0
-      //     }
-      //   })
-      // }
-
-
       return {
         success: true,
-        updatedPlaylist
-      }
+        playlist: {
+          ...playlist,
+          trackCount: updatedSpotifyPlaylist.tracks.total,
+          tracks,
+        },
+      };
     } catch (error) {
       throw new Error(`Failed to add track do the Spotify playlist: ${error.message}`);
     }
