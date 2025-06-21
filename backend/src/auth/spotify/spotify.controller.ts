@@ -50,6 +50,7 @@ export class SpotifyController {
       res.json({
         message: 'Spotify connection successful!',
         profile: result.profile,
+        token: result.token,
       });
     } catch (error) {
       // TO:DO Redirect to an error page

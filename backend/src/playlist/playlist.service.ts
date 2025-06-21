@@ -8,7 +8,7 @@ export class PlaylistService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly httpService: HttpService,
-  ) { }
+  ) {}
 
   /**
    * Fetch all playlists for a user from Spotify
@@ -40,7 +40,7 @@ export class PlaylistService {
             limit: 50,
             offset: 0,
           },
-        })
+        }),
       );
 
       const playlists = await Promise.all(
@@ -82,7 +82,7 @@ export class PlaylistService {
           total: data.total,
           limit: data.limit,
           offset: data.offset,
-          playlists: playlists.map(playlist => ({
+          playlists: playlists.map((playlist) => ({
             id: playlist.id,
             serviceId: playlist.serviceId,
             name: playlist.name,
@@ -285,7 +285,7 @@ export class PlaylistService {
     userId: string,
     accessToken: string,
     playlistId: string,
-    trackUris: string[]
+    trackUris: string[],
   ) {
     try {
       const playlist = await this.prisma.playlist.findUnique({
@@ -306,7 +306,7 @@ export class PlaylistService {
         this.httpService.post(
           `https://api.spotify.com/v1/playlists/${playlist.serviceId}/tracks`,
           {
-            uris: trackUris
+            uris: trackUris,
           },
           {
             headers: {
@@ -329,51 +329,53 @@ export class PlaylistService {
       );
 
       const tracks = await Promise.all(
-        updatedSpotifyPlaylist.tracks.items.map(async (item: any, index: number) => {
-          const track = item.track;
+        updatedSpotifyPlaylist.tracks.items.map(
+          async (item: any, index: number) => {
+            const track = item.track;
 
-          const storedTrack = await this.prisma.track.upsert({
-            where: {
-              serviceType_serviceId: {
-                serviceId: track.id,
-                serviceType: 'SPOTIFY',
+            const storedTrack = await this.prisma.track.upsert({
+              where: {
+                serviceType_serviceId: {
+                  serviceId: track.id,
+                  serviceType: 'SPOTIFY',
+                },
               },
-            },
-            create: {
-              serviceType: 'SPOTIFY',
-              serviceId: track.id,
-              name: track.name,
-              artist: track.artists[0].name, // Using first artist for now
-              album: track.album.name,
-              duration: track.duration_ms,
-            },
-            update: {
-              name: track.name,
-              artist: track.artists[0].name,
-              album: track.album.name,
-              duration: track.duration_ms,
-            },
-          });
+              create: {
+                serviceType: 'SPOTIFY',
+                serviceId: track.id,
+                name: track.name,
+                artist: track.artists[0].name, // Using first artist for now
+                album: track.album.name,
+                duration: track.duration_ms,
+              },
+              update: {
+                name: track.name,
+                artist: track.artists[0].name,
+                album: track.album.name,
+                duration: track.duration_ms,
+              },
+            });
 
-          await this.prisma.playlistTrack.upsert({
-            where: {
-              playlistId_trackId: {
+            await this.prisma.playlistTrack.upsert({
+              where: {
+                playlistId_trackId: {
+                  playlistId,
+                  trackId: storedTrack.id,
+                },
+              },
+              create: {
                 playlistId,
                 trackId: storedTrack.id,
+                position: index,
               },
-            },
-            create: {
-              playlistId,
-              trackId: storedTrack.id,
-              position: index,
-            },
-            update: {
-              position: index,
-            },
-          });
+              update: {
+                position: index,
+              },
+            });
 
-          return storedTrack;
-        }),
+            return storedTrack;
+          },
+        ),
       );
 
       await this.prisma.playlist.update({
@@ -392,7 +394,9 @@ export class PlaylistService {
         },
       };
     } catch (error) {
-      throw new Error(`Failed to add track do the Spotify playlist: ${error.message}`);
+      throw new Error(
+        `Failed to add track do the Spotify playlist: ${error.message}`,
+      );
     }
   }
 }

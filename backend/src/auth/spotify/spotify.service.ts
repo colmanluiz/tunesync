@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import queryString from 'query-string';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { JwtService } from '../jwt.service';
 
 @Injectable()
 export class SpotifyService {
@@ -20,7 +21,8 @@ export class SpotifyService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly httpService: HttpService,
-  ) { }
+    private readonly jwtService: JwtService,
+  ) {}
 
   async getAuthUrl(): Promise<string> {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
@@ -88,7 +90,7 @@ export class SpotifyService {
   /**
    * @param code - The authorization code from Spotify
    * @param userId - The ID of the user in our system
-   * @returns The user's profile and success status
+   * @returns The user's profile and JWT token
    */
   async handleCallback(code: string, userId: string) {
     try {
@@ -118,7 +120,17 @@ export class SpotifyService {
         },
       });
 
-      return { success: true, profile };
+      const jwtToken = this.jwtService.generateToken({
+        sub: userId,
+        email: profile.email,
+        spotifyAccessToken: tokens.access_token,
+      });
+
+      return {
+        success: true,
+        profile,
+        token: jwtToken,
+      };
     } catch (error) {
       throw new Error(`Failed to handle Spotify callback: ${error.message}`);
     }

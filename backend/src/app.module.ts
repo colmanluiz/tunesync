@@ -7,6 +7,7 @@ import { TestModule } from './test/test.module';
 import { SpotifyModule } from './auth/spotify/spotify.module';
 // import { AuthModule } from './auth/auth.module';
 import { PlaylistModule } from './playlist/playlist.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,8 +17,8 @@ import { PlaylistModule } from './playlist/playlist.module';
     PrismaModule,
     TestModule,
     SpotifyModule,
-    // AuthModule,
     PlaylistModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
