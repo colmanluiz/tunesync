@@ -11,7 +11,7 @@ export class PlaylistController {
     async getSpotifyPlaylists(@Req() req: Request) {
         const userId = 'cmc5aljc90000fjfsoiogp7nq';
         const accessToken =
-            'BQC8GNcAH8mQo8vkbxfR6e-u3J5slCeTwB2xp9dzyhcdDLdQ5y3EhHry7Y7mjUjIX6buFnc6x3BQFeMRXuUMhmI2weJq5wBg65tSu8bqUzatkezZMbBj9xotK7Yhe4CAtbGMTuG_LrAFoF4rzG90_-x3Mz9qDvW4QWgSoNMQkHClt6IhtDCnO4Mkk98KDm4vurs8u4sQ6ANh36jb19FxMwWe9IuQ0Ecd6Kqe1q2Rz5GR3Qr3Y9s577s';
+            'BQBSjLsTMJbxyx2YGUar4GCfazmblq7eDHbmIofiDLLbXPY9udLa5ggp3y034Jg2Z73qw2IlBbksgdB1Evp_IULRZyNhp_ibwMScZGiWUWxD6uJ22L0fHez04QeqMO9SK-URUhQ5M3i5hPLnKVU1aOHBjy2nqAH0kkleN01N4OZE2xauptmrX3zeIGVTnbIq3V3qlhBQ1x6gmYp8bnIWn_Dk4b7Tpn2gdfjPPWZRxbLsmdss2qZIiJu26JV-rfifqIy1Cs4MDm2jJgCJTUc7_EDuiDIi0ATmxRXm0KtjHuPhe4A';
         return this.playlistService.getSpotifyPlaylists(userId, accessToken);
     }
 
@@ -19,7 +19,7 @@ export class PlaylistController {
     async getPlaylistDetails() {
         const userId = 'cmc5aljc90000fjfsoiogp7nq';
         const accessToken =
-            'BQC8GNcAH8mQo8vkbxfR6e-u3J5slCeTwB2xp9dzyhcdDLdQ5y3EhHry7Y7mjUjIX6buFnc6x3BQFeMRXuUMhmI2weJq5wBg65tSu8bqUzatkezZMbBj9xotK7Yhe4CAtbGMTuG_LrAFoF4rzG90_-x3Mz9qDvW4QWgSoNMQkHClt6IhtDCnO4Mkk98KDm4vurs8u4sQ6ANh36jb19FxMwWe9IuQ0Ecd6Kqe1q2Rz5GR3Qr3Y9s577s';
+            'BQBSjLsTMJbxyx2YGUar4GCfazmblq7eDHbmIofiDLLbXPY9udLa5ggp3y034Jg2Z73qw2IlBbksgdB1Evp_IULRZyNhp_ibwMScZGiWUWxD6uJ22L0fHez04QeqMO9SK-URUhQ5M3i5hPLnKVU1aOHBjy2nqAH0kkleN01N4OZE2xauptmrX3zeIGVTnbIq3V3qlhBQ1x6gmYp8bnIWn_Dk4b7Tpn2gdfjPPWZRxbLsmdss2qZIiJu26JV-rfifqIy1Cs4MDm2jJgCJTUc7_EDuiDIi0ATmxRXm0KtjHuPhe4A';
         const playlistId = 'cmbzk9me00007fjpvymqeh3te';
 
         return this.playlistService.getPlaylistDetails(
@@ -36,7 +36,7 @@ export class PlaylistController {
     ) {
         const userId = 'cmc5aljc90000fjfsoiogp7nq';
         const accessToken =
-            'BQDUohsAEs5spi59JpiVPPFkIPZkWBQSH9y-Uc4DZ0nYfsPg-HWjGTJfdZIjJ_leqY_HBNdYkeVdM4k8h7S_gM7Fn-thbii3WQb_o-MAnkm54PY3nMNffsh0vq99JP829sJuX1jsgSp_jx8RIIsNziVaqkZzOqjwdOlNHagOmzdyYJrZO-tXGREyE2ElenJku4Rl6oEJBSOvYWJBzFdf7GpIJa7xyMrqArQEk4PWE5518PhzKhopN_s';
+            'BQBSjLsTMJbxyx2YGUar4GCfazmblq7eDHbmIofiDLLbXPY9udLa5ggp3y034Jg2Z73qw2IlBbksgdB1Evp_IULRZyNhp_ibwMScZGiWUWxD6uJ22L0fHez04QeqMO9SK-URUhQ5M3i5hPLnKVU1aOHBjy2nqAH0kkleN01N4OZE2xauptmrX3zeIGVTnbIq3V3qlhBQ1x6gmYp8bnIWn_Dk4b7Tpn2gdfjPPWZRxbLsmdss2qZIiJu26JV-rfifqIy1Cs4MDm2jJgCJTUc7_EDuiDIi0ATmxRXm0KtjHuPhe4A';
 
         return this.playlistService.createSpotifyPlaylist(
             userId,
@@ -54,7 +54,7 @@ export class PlaylistController {
     ) {
         const userId = 'cmc5aljc90000fjfsoiogp7nq';
         const accessToken =
-            'BQC8GNcAH8mQo8vkbxfR6e-u3J5slCeTwB2xp9dzyhcdDLdQ5y3EhHry7Y7mjUjIX6buFnc6x3BQFeMRXuUMhmI2weJq5wBg65tSu8bqUzatkezZMbBj9xotK7Yhe4CAtbGMTuG_LrAFoF4rzG90_-x3Mz9qDvW4QWgSoNMQkHClt6IhtDCnO4Mkk98KDm4vurs8u4sQ6ANh36jb19FxMwWe9IuQ0Ecd6Kqe1q2Rz5GR3Qr3Y9s577s';
+            'BQBSjLsTMJbxyx2YGUar4GCfazmblq7eDHbmIofiDLLbXPY9udLa5ggp3y034Jg2Z73qw2IlBbksgdB1Evp_IULRZyNhp_ibwMScZGiWUWxD6uJ22L0fHez04QeqMO9SK-URUhQ5M3i5hPLnKVU1aOHBjy2nqAH0kkleN01N4OZE2xauptmrX3zeIGVTnbIq3V3qlhBQ1x6gmYp8bnIWn_Dk4b7Tpn2gdfjPPWZRxbLsmdss2qZIiJu26JV-rfifqIy1Cs4MDm2jJgCJTUc7_EDuiDIi0ATmxRXm0KtjHuPhe4A';
 
         return this.playlistService.addTracksToPlaylist(
             userId,

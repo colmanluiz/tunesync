@@ -14,7 +14,7 @@ export class PlaylistService {
    * Fetch all playlists for a user from Spotify
    * @param userId - The user's ID in our system
    * @param accessToken - The Spotify access token
-   * @returns Array of playlists with basic information
+   * @returns Array of playlists with comprehensive information
    */
   async getSpotifyPlaylists(userId: string, accessToken: string) {
     try {
@@ -36,7 +36,11 @@ export class PlaylistService {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }),
+          params: {
+            limit: 50,
+            offset: 0,
+          },
+        })
       );
 
       const playlists = await Promise.all(
@@ -56,17 +60,44 @@ export class PlaylistService {
               name: playlist.name,
               description: playlist.description || '',
               trackCount: playlist.tracks.total,
+              public: playlist.public,
+              collaborative: playlist.collaborative,
+              ownerId: playlist.owner.id,
             },
             update: {
               name: playlist.name,
               description: playlist.description || '',
               trackCount: playlist.tracks.total,
+              public: playlist.public,
+              collaborative: playlist.collaborative,
+              ownerId: playlist.owner.id,
             },
           });
         }),
       );
 
-      return data;
+      return {
+        success: true,
+        data: {
+          total: data.total,
+          limit: data.limit,
+          offset: data.offset,
+          playlists: playlists.map(playlist => ({
+            id: playlist.id,
+            serviceId: playlist.serviceId,
+            name: playlist.name,
+            description: playlist.description,
+            trackCount: playlist.trackCount,
+            public: playlist.public,
+            collaborative: playlist.collaborative,
+            ownerId: playlist.ownerId,
+            createdAt: playlist.createdAt,
+            updatedAt: playlist.updatedAt,
+            spotifyUrl: `https://open.spotify.com/playlist/${playlist.serviceId}`,
+            isOwned: playlist.ownerId === connection.serviceUserId,
+          })),
+        },
+      };
     } catch (error) {
       throw new Error(`Failed to fetch Spotify playlists: ${error.message}`);
     }
@@ -267,13 +298,10 @@ export class PlaylistService {
         },
       });
 
-      console.log(playlist)
-
       if (!playlist) {
         throw new Error('Playlist not found');
       }
 
-      // adicionando musicas na playlist
       const { data: spotifyResponse } = await firstValueFrom(
         this.httpService.post(
           `https://api.spotify.com/v1/playlists/${playlist.serviceId}/tracks`,
@@ -289,7 +317,6 @@ export class PlaylistService {
         ),
       );
 
-      // puxo playlist apos mandar novas musicas pra ela, teoricamente ela vem "atualizada"
       const { data: updatedSpotifyPlaylist } = await firstValueFrom(
         this.httpService.get(
           `https://api.spotify.com/v1/playlists/${playlist.serviceId}`,
@@ -301,7 +328,6 @@ export class PlaylistService {
         ),
       );
 
-      // atualizo as tracks e a relacao playlistTrack na db tbm
       const tracks = await Promise.all(
         updatedSpotifyPlaylist.tracks.items.map(async (item: any, index: number) => {
           const track = item.track;
@@ -350,7 +376,6 @@ export class PlaylistService {
         }),
       );
 
-      // atualizo a playlist na db
       await this.prisma.playlist.update({
         where: { id: playlistId },
         data: {

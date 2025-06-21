@@ -20,7 +20,7 @@ export class SpotifyService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly httpService: HttpService,
-  ) {}
+  ) { }
 
   async getAuthUrl(): Promise<string> {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
@@ -31,7 +31,7 @@ export class SpotifyService {
       queryString.stringify({
         response_type: 'code',
         client_id: clientId,
-        scope: this.scopes,
+        scope: this.scopes.join(' '),
         redirect_uri: redirectURI,
       });
 
