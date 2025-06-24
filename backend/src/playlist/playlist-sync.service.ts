@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import getSpotifyUris from 'src/lib/getSpotifyUris';
 
 export interface SyncOptions {
   syncName?: string;
@@ -177,6 +176,74 @@ export class PlaylistSyncService {
   }
 
   /**
+   * Sync tracks to a Spotify playlist
+   */
+  private async syncToSpotify(
+    sync: any,
+    sourceTracks: any[],
+    targetTracks: any[],
+    accessToken: string,
+  ) {
+    try {
+      const trackUris = sourceTracks.map(
+        (pt) => `spotify:track:${pt.track.serviceId}`,
+      );
+
+      await firstValueFrom(
+        this.httpService.put(
+          `https://api.spotify.com/v1/playlists/${sync.targetPlaylist.serviceId}/tracks`,
+          { uris: [] },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        ),
+      );
+
+      if (trackUris.length > 0) {
+        await firstValueFrom(
+          this.httpService.post(
+            `https://api.spotify.com/v1/playlists/${sync.targetPlaylist.serviceId}/tracks`,
+            {
+              uris: trackUris,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            },
+          ),
+        );
+      }
+
+      await this.prisma.playlistSync.update({
+        where: { id: sync.id },
+        data: {
+          status: 'SUCCESS',
+          lastSyncedAt: new Date(),
+          errorMessage: null,
+        },
+      });
+
+      // this.logger.log(
+      //   `Successfully synced ${trackUris.length} tracks from ${sync.sourcePlaylist.name} to ${sync.targetPlaylist.name}`,
+      // );
+
+      return {
+        success: true,
+        syncedTracks: trackUris.length,
+        newTracks: trackUris.length,
+        removedTracks: targetTracks.length,
+      };
+    } catch (error) {
+      throw new Error(`Spotify sync failed: ${error.message}`);
+    }
+  }
+
+  /**
    * Get all sync relationships for a user
    * @param userId - The user's ID
    */
@@ -216,6 +283,46 @@ export class PlaylistSyncService {
       };
     } catch (error) {
       throw new Error(`Failed to get user syncs: ${error.message}`);
+    }
+  }
+
+  /**
+   * Delete a sync relationship
+   * @param userId - The user's ID
+   * @param syncId - The sync relationship ID
+   */
+  async deleteSync(userId: string, syncId: string) {
+    try {
+      const sync = await this.prisma.playlistSync.findFirst({
+        where: {
+          id: syncId,
+          userId,
+        },
+        include: {
+          sourcePlaylist: true,
+          targetPlaylist: true,
+        },
+      });
+
+      if (!sync) {
+        throw new Error('Sync relationship not found or access denied');
+      }
+
+      await this.prisma.playlistSync.delete({
+        where: { id: syncId },
+      });
+
+      // this.logger.log(
+      //   `Deleted sync relationship: ${sync.sourcePlaylist.name} → ${sync.targetPlaylist.name}`,
+      // );
+
+      return {
+        success: true,
+        message: 'Sync relationship deleted successfully',
+      };
+    } catch (error) {
+      // this.logger.error(`Failed to delete sync: ${error.message}`);
+      throw new Error(`Failed to delete sync: ${error.message}`);
     }
   }
 }

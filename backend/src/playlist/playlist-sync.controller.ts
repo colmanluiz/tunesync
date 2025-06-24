@@ -60,53 +60,35 @@ export class PlaylistSyncController {
     }
   }
 
-  @Get(':syncId')
-  async getUserSync(@Request() req, @Param('syncId') syncId: string) {
+  /**
+   * Perform a sync operation for a specific sync relationship
+   */
+  @Post(':syncId/sync')
+  async performSync(@Request() req, @Param('syncId') syncId: string) {
     try {
       const userId = req.user.userId;
+      const result = await this.playlistSyncService.performSync(userId, syncId);
 
-      return await this.playlistSyncService.performSync(userId, syncId);
+      return {
+        success: true,
+        message: `Successfully synced ${result.syncedTracks} tracks`,
+        data: result,
+      };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  /**
+   * Delete a sync relationship
+   */
+  @Delete(':syncId')
+  async deleteSync(@Request() req, @Param('syncId') syncId: string) {
+    try {
+      const userId = req.user.userId;
+      return await this.playlistSyncService.deleteSync(userId, syncId);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
-
-//     /**
-//      * Perform a sync operation for a specific sync relationship
-//      */
-//     @Post(':syncId/sync')
-//     async performSync(@Request() req, @Param('syncId') syncId: string) {
-//         try {
-//             const userId = req.user.sub;
-//             const result = await this.playlistSyncService.performSync(userId, syncId);
-
-//             return {
-//                 success: true,
-//                 message: `Successfully synced ${result.syncedTracks} tracks`,
-//                 data: result,
-//             };
-//         } catch (error) {
-//             throw new HttpException(
-//                 error.message,
-//                 HttpStatus.INTERNAL_SERVER_ERROR,
-//             );
-//         }
-//     }
-
-//     /**
-//      * Delete a sync relationship
-//      */
-//     @Delete(':syncId')
-//     async deleteSync(@Request() req, @Param('syncId') syncId: string) {
-//         try {
-//             const userId = req.user.sub;
-//             return await this.playlistSyncService.deleteSync(userId, syncId);
-//         } catch (error) {
-//             throw new HttpException(
-//                 error.message,
-//                 HttpStatus.BAD_REQUEST,
-//             );
-//         }
-//     }
-// }
