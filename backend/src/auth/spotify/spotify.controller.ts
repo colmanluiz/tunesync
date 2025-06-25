@@ -1,7 +1,8 @@
-import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { SpotifyService } from './spotify.service';
 import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('auth/spotify')
 export class SpotifyController {
@@ -18,9 +19,11 @@ export class SpotifyController {
   }
 
   @Get('callback')
+  @UseGuards(JwtAuthGuard)
   async callback(
     @Query('code') code: string,
     @Query('error') error: string,
+    @Req() req: Request,
     @Res() res: Response,
   ) {
     try {
@@ -32,21 +35,19 @@ export class SpotifyController {
         throw new Error('No authorization code received');
       }
 
-      const testUser = await this.prisma.user.upsert({
-        where: { email: 'test@example.com' },
-        create: {
-          email: 'test@example.com',
-          name: 'Test User',
-        },
-        update: {},
-      });
+      // Extract userId from JWT
+      // req.user is set by JwtAuthGuard
+      const user = req.user as any;
+      if (!user || !user.userId) {
+        throw new Error('User not authenticated');
+      }
 
       const result = await this.spotifyService.handleCallback(
         code,
-        testUser.id,
+        user.userId,
       );
 
-      // TO:DO Redirect to an success page
+      // TO:DO Redirect to a success page
       res.json({
         message: 'Spotify connection successful!',
         profile: result.profile,

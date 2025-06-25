@@ -17,7 +17,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       callbackURL: configService.get<string>('GOOGLE_CALLBACK_URI')!,
       scope: ['profile', 'email'],
     };
-    console.log(options);
     super(options);
   }
 
