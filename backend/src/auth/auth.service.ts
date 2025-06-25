@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from './jwt.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -12,6 +13,8 @@ import {
   ResetPasswordDto,
 } from './dto';
 import * as bcrypt from 'bcrypt';
+import { plainToInstance } from 'class-transformer';
+import { SafeUserDto } from './dto/safe-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -119,5 +122,90 @@ export class AuthService {
     // For now, we'll just return success
     // In a more advanced implementation, we might blacklist tokens
     return { message: 'Logged out successfully' };
+  }
+
+  async handleGoogleLogin(googleProfile) {
+    let user = await this.prisma.user.findUnique({
+      where: { googleId: googleProfile.providerId },
+    });
+
+    if (!user && googleProfile.email) {
+      const userByEmail = await this.prisma.user.findUnique({
+        where: { email: googleProfile.email },
+      });
+      if (userByEmail) {
+        user = await this.prisma.user.update({
+          where: { id: userByEmail.id },
+          data: { googleId: googleProfile.providerId },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            password: true,
+            emailVerified: true,
+            googleId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+      }
+    }
+
+    if (!user) {
+      try {
+        user = await this.prisma.user.create({
+          data: {
+            email: googleProfile.email,
+            name: googleProfile.name,
+            googleId: googleProfile.providerId,
+          },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            password: true,
+            emailVerified: true,
+            googleId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+      } catch (error) {
+        throw new InternalServerErrorException(`${error}`);
+      }
+    } else {
+      if (googleProfile.name && user.name !== googleProfile.name) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: { name: googleProfile.name },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            password: true,
+            emailVerified: true,
+            googleId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+      }
+    }
+
+    if (!user) {
+      throw new InternalServerErrorException(
+        'User could not be created or found',
+      );
+    }
+
+    const token = this.jwtService.generateToken({
+      sub: user.id,
+      email: user.email,
+    });
+
+    return {
+      user: plainToInstance(SafeUserDto, user),
+      token,
+    };
   }
 }

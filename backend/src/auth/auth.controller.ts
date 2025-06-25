@@ -1,5 +1,12 @@
-import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  Request,
+  Get,
+  Req,
+} from '@nestjs/common';
 import {
   ForgotPasswordDto,
   LoginDto,
@@ -8,14 +15,13 @@ import {
 } from './dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GoogleOauthGuard } from './guards/google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
+  // User Auth
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
@@ -41,5 +47,18 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  // Google Auth
+  @Get('google/login')
+  @UseGuards(GoogleOauthGuard)
+  async googleLogin() {}
+
+  @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthCallback(@Req() req) {
+    const googleUserProfile = req.user;
+
+    return this.authService.handleGoogleLogin(googleUserProfile);
   }
 }
