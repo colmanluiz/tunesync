@@ -14,9 +14,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const options: StrategyOptions = {
       clientID: configService.get<string>('GOOGLE_CLIENT_ID')!,
       clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET')!,
-      callbackURL: configService.get<string>('GOOGLE_CALLBACK_URL')!,
+      callbackURL: configService.get<string>('GOOGLE_CALLBACK_URI')!,
       scope: ['profile', 'email'],
     };
+    console.log(options);
     super(options);
   }
 
