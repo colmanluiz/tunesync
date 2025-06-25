@@ -1,0 +1,123 @@
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from './jwt.service';
+import { PrismaService } from '../prisma/prisma.service';
+import {
+  RegisterDto,
+  LoginDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+} from './dto';
+import * as bcrypt from 'bcrypt';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async register(registerDto: RegisterDto) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: registerDto.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
+    }
+
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: registerDto.email,
+        name: registerDto.name,
+        password: hashedPassword,
+        emailVerified: false, // Will be verified via email later
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
+
+    const token = this.jwtService.generateToken({
+      sub: user.id,
+      email: user.email,
+    });
+
+    return {
+      user,
+      token,
+    }; // this have a problem. user does not need to verify email to login.
+  }
+
+  async login(loginDto: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: loginDto.email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const passwordVerified = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
+
+    if (!passwordVerified) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const token = this.jwtService.generateToken({
+      sub: user.id,
+      email: user.email,
+    });
+
+    const userData = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+    };
+
+    return {
+      user: userData,
+      token,
+    };
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    // TODO: Implement forgot password
+    // 1. Find user by email
+    // 2. Generate reset token
+    // 3. Send email (we'll implement this later)
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    // TODO: Implement password reset
+    // 1. Validate reset token
+    // 2. Hash new password
+    // 3. Update user password
+  }
+
+  async logout(userId: string) {
+    // TODO: Implement logout
+    // For now, we'll just return success
+    // In a more advanced implementation, we might blacklist tokens
+    return { message: 'Logged out successfully' };
+  }
+}
