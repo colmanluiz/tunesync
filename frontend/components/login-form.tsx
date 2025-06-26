@@ -1,9 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod/v4";
 
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
+import { PasswordInput } from "./ui/password-input";
 
 import { loginFormSchema } from "@/lib/validation-schemas";
-import { PasswordInput } from "./ui/password-input";
 
 const formSchema = loginFormSchema;
 
