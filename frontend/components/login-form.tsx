@@ -1,10 +1,12 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { loginFormSchema } from "@/lib/validation-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import * as z from "zod/v4";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,25 +19,64 @@ import {
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
 import { PasswordInput } from "./ui/password-input";
-
-import { loginFormSchema } from "@/lib/validation-schemas";
-
-const formSchema = loginFormSchema;
+import Link from "next/link";
+import api from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const router = useRouter();
+  const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    setIsLoading(true);
+    try {
+      const response = await api.post("/auth/login", {
+        email: values.email,
+        password: values.password,
+      });
+
+      if (response && response.data.token) {
+        localStorage.setItem("token", response.data.token);
+
+        const userData = {
+          id: response.data.user.id,
+          name: response.data.user.name,
+          email: response.data.user.email,
+          emailVerified: response.data.user.emailVerified,
+          createdAt: response.data.user.createdAt,
+        };
+
+        login(response.data.token, userData);
+
+        toast.success("Login successful!");
+        // router.push("/dashboard");
+      }
+    } catch (error: any) {
+      console.error("Login error", error);
+
+      if (error.response?.status === 401) {
+        toast.error("Invalid email or password");
+      } else if (error.response?.status === 400) {
+        toast.error("Invalid data provided");
+      } else {
+        toast.error("Login failed. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -43,7 +84,7 @@ export function LoginForm({
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Login with your Google account</CardDescription>
+          <CardDescription>Login to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -63,7 +104,7 @@ export function LoginForm({
                         fill="currentColor"
                       />
                     </svg>
-                    Login with Google
+                    Continue with Google
                   </Button>
                 </div>
                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
@@ -82,8 +123,8 @@ export function LoginForm({
                           <FormControl>
                             <Input
                               id="email"
-                              placeholder="email@example.com"
                               type="email"
+                              placeholder="email@example.com"
                               autoComplete="email"
                               {...field}
                             />
@@ -98,15 +139,7 @@ export function LoginForm({
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <div className="flex items-center">
-                            <FormLabel htmlFor="password">Password</FormLabel>
-                            <Link
-                              href={"#"}
-                              className="ml-auto text-sm underline-offset-4 hover:underline"
-                            >
-                              Forgot your password?
-                            </Link>
-                          </div>
+                          <FormLabel htmlFor="password">Password</FormLabel>
                           <FormControl>
                             <PasswordInput
                               id="password"
@@ -119,8 +152,8 @@ export function LoginForm({
                       )}
                     />
                   </div>
-                  <Button type="submit" className="w-full">
-                    Login
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Signing in..." : "Sign in"}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
@@ -129,7 +162,7 @@ export function LoginForm({
                     href="/register"
                     className="underline underline-offset-4"
                   >
-                    Sign up
+                    Register
                   </Link>
                 </div>
               </div>

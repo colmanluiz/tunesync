@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthUser, SpotifyProfile, StoredAuthData } from "@/types/auth";
+import { User, StoredAuthData, AuthContextType } from "@/types/auth";
 import {
   createContext,
   ReactNode,
@@ -9,26 +9,11 @@ import {
   useState,
 } from "react";
 
-interface AuthContextType {
-  // Data
-  user: AuthUser | null;
-  profile: SpotifyProfile | null;
-  isLoading: boolean;
-
-  // Actions
-  login: (token: string, profile: SpotifyProfile) => void;
-  logout: () => void;
-
-  // Computed
-  isAuthenticated: boolean;
-}
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [profile, setProfile] = useState<SpotifyProfile | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const saveToStorage = (data: StoredAuthData) => {
     try {
@@ -61,44 +46,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (storedData) {
       setUser(storedData.user);
-      setProfile(storedData.profile);
     }
 
     setIsLoading(false);
   }, []);
 
-  const login = (token: string, profile: SpotifyProfile) => {
-    // Create user object from JWT token
-    // In a real app, you'd decode the JWT to get user info
-    // For now, we'll use the profile data
-    const user: AuthUser = {
-      userId: profile.id, // This should come from JWT in real app
-      email: profile.email,
-      spotifyAccessToken: token, // This should be the actual access token
-    };
-
-    // Update state
+  const login = (token: string, user: User) => {
     setUser(user);
-    setProfile(profile);
-
-    // Save to localStorage
-    saveToStorage({ token, user, profile });
+    saveToStorage({ token, user });
   };
 
   const logout = () => {
     setUser(null);
-    setProfile(null);
-
     clearStorage();
   };
 
   const value: AuthContextType = {
     user,
-    profile,
     isLoading,
     login,
     logout,
-    isAuthenticated: !!user, // Convert to boolean
+    isAuthenticated: !!user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -109,6 +77,5 @@ export function useAuth() {
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-
   return context;
 }

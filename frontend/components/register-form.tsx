@@ -5,6 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod/v4";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,9 +19,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
-import { PasswordInput } from "./ui/password-input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+import { PasswordInput } from "@/components/ui/password-input";
 import Link from "next/link";
+import api from "@/lib/api";
 
 const formSchema = registerFormSchema;
 
@@ -25,6 +36,11 @@ export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
+  const { login } = useAuth();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,7 +52,41 @@ export function RegisterForm({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    setIsLoading(true);
+    try {
+      const response = await api.post("/auth/register", {
+        name: values.username,
+        email: values.email,
+        password: values.password,
+      });
+
+      if (response && response.data.token) {
+        localStorage.setItem("token", response.data.token);
+
+        const userData = {
+          id: response.data.user.id,
+          name: response.data.user.name,
+          email: response.data.user.email,
+          emailVerified: response.data.user.emailVerified,
+          createdAt: response.data.user.createdAt,
+        };
+
+        login(response.data.token, userData);
+
+        toast.success("Account created successfully!");
+        // router.push("/dashboard");
+      }
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        toast.error("Email already exists");
+      } else if (error.response?.status === 400) {
+        toast.error("Invalid data provided");
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -151,8 +201,8 @@ export function RegisterForm({
                       )}
                     />
                   </div>
-                  <Button type="submit" className="w-full">
-                    Register
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Creating account..." : "Register"}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
@@ -166,6 +216,10 @@ export function RegisterForm({
           </Form>
         </CardContent>
       </Card>
+      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        and <a href="#">Privacy Policy</a>.
+      </div>
     </div>
   );
 }
