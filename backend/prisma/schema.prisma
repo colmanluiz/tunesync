@@ -31,7 +31,7 @@ model User {
 model ServiceConnection {
   id            String    @id @default(cuid())
   userId        String
-  serviceType   String // "SPOTIFY", "YOUTUBE", "APPLE_MUSIC", "DEEZER"
+  serviceType   String // "SPOTIFY", "YOUTUBE", "APPLE-MUSIC", "DEEZER"
   accessToken   String
   refreshToken  String?
   expiresAt     DateTime?
@@ -46,7 +46,7 @@ model ServiceConnection {
 model Playlist {
   id            String          @id @default(cuid())
   userId        String
-  serviceType   String // "SPOTIFY", "YOUTUBE", "APPLE_MUSIC", "DEEZER"
+  serviceType   String // "SPOTIFY", "YOUTUBE", "APPLE-MUSIC", "DEEZER"
   serviceId     String // ID from the music service
   name          String
   description   String?
@@ -66,7 +66,7 @@ model Playlist {
 
 model Track {
   id          String          @id @default(cuid())
-  serviceType String // "SPOTIFY", "YOUTUBE", "APPLE_MUSIC", "DEEZER"
+  serviceType String // "SPOTIFY", "YOUTUBE", "APPLE-MUSIC", "DEEZER"
   serviceId   String // ID from the music service
   name        String
   artist      String

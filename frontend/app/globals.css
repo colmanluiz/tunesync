@@ -112,6 +112,270 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
+/* Start of Selection */
+/* Start Generation Here */
+/* Service Color Palettes */
+:root {
+  /* Spotify Primary Colors */
+  --spotify-primary: #1db954;
+  --spotify-primary-hover: #1ed760;
+  --spotify-primary-dark: #1aa34a;
+  --spotify-black: #191414;
+  --spotify-white: #ffffff;
+
+  /* Spotify Background Colors */
+  --spotify-bg-primary: #121212;
+  --spotify-bg-secondary: #181818;
+  --spotify-bg-tertiary: #282828;
+  --spotify-bg-elevated: #404040;
+  --spotify-bg-highlight: #535353;
+
+  /* Spotify Text Colors */
+  --spotify-text-primary: #ffffff;
+  --spotify-text-secondary: #b3b3b3;
+  --spotify-text-tertiary: #727272;
+  --spotify-text-subdued: #a7a7a7;
+
+  /* Spotify Border Colors */
+  --spotify-border-light: #282828;
+  --spotify-border-medium: #404040;
+  --spotify-border-heavy: #535353;
+
+  /* Spotify State Colors */
+  --spotify-hover: #282828;
+  --spotify-active: #404040;
+  --spotify-focus: #1db954;
+  --spotify-error: #e91429;
+  --spotify-warning: #ffa726;
+  --spotify-success: #1db954;
+
+  /* Spotify Gradient Colors */
+  --spotify-gradient-primary: linear-gradient(135deg, #1db954 0%, #1ed760 100%);
+  --spotify-gradient-secondary: linear-gradient(
+    135deg,
+    #282828 0%,
+    #404040 100%
+  );
+  --spotify-gradient-dark: linear-gradient(135deg, #121212 0%, #181818 100%);
+
+  /* YouTube Primary Colors */
+  --youtube-primary: #ff0000;
+  --youtube-primary-hover: #ff1a1a;
+  --youtube-primary-dark: #cc0000;
+  --youtube-black: #191414;
+  --youtube-white: #ffffff;
+
+  /* YouTube Background Colors */
+  --youtube-bg-primary: #121212;
+  --youtube-bg-secondary: #181818;
+  --youtube-bg-tertiary: #282828;
+  --youtube-bg-elevated: #404040;
+  --youtube-bg-highlight: #535353;
+
+  /* YouTube Text Colors */
+  --youtube-text-primary: #ffffff;
+  --youtube-text-secondary: #b3b3b3;
+  --youtube-text-tertiary: #727272;
+  --youtube-text-subdued: #a7a7a7;
+
+  /* YouTube Border Colors */
+  --youtube-border-light: #282828;
+  --youtube-border-medium: #404040;
+  --youtube-border-heavy: #535353;
+
+  /* YouTube State Colors */
+  --youtube-hover: #282828;
+  --youtube-active: #404040;
+  --youtube-focus: #ff0000;
+  --youtube-error: #e91429;
+  --youtube-warning: #ffa726;
+  --youtube-success: #ff0000;
+
+  /* YouTube Gradient Colors */
+  --youtube-gradient-primary: linear-gradient(135deg, #ff0000 0%, #ff1a1a 100%);
+  --youtube-gradient-secondary: linear-gradient(
+    135deg,
+    #282828 0%,
+    #404040 100%
+  );
+  --youtube-gradient-dark: linear-gradient(135deg, #121212 0%, #181818 100%);
+
+  /* Apple Music Primary Colors */
+  --apple-music-primary: #fa243c;
+  --apple-music-primary-hover: #ff2a44;
+  --apple-music-primary-dark: #c81e30;
+  --apple-music-black: #191414;
+  --apple-music-white: #ffffff;
+
+  /* Apple Music Background Colors */
+  --apple-music-bg-primary: #121212;
+  --apple-music-bg-secondary: #181818;
+  --apple-music-bg-tertiary: #282828;
+  --apple-music-bg-elevated: #404040;
+  --apple-music-bg-highlight: #535353;
+
+  /* Apple Music Text Colors */
+  --apple-music-text-primary: #ffffff;
+  --apple-music-text-secondary: #b3b3b3;
+  --apple-music-text-tertiary: #727272;
+  --apple-music-text-subdued: #a7a7a7;
+
+  /* Apple Music Border Colors */
+  --apple-music-border-light: #282828;
+  --apple-music-border-medium: #404040;
+  --apple-music-border-heavy: #535353;
+
+  /* Apple Music State Colors */
+  --apple-music-hover: #282828;
+  --apple-music-active: #404040;
+  --apple-music-focus: #fa243c;
+  --apple-music-error: #e91429;
+  --apple-music-warning: #ffa726;
+  --apple-music-success: #fa243c;
+
+  /* Apple Music Gradient Colors */
+  --apple-music-gradient-primary: linear-gradient(
+    135deg,
+    #fa243c 0%,
+    #ff2a44 100%
+  );
+  --apple-music-gradient-secondary: linear-gradient(
+    135deg,
+    #282828 0%,
+    #404040 100%
+  );
+  --apple-music-gradient-dark: linear-gradient(
+    135deg,
+    #121212 0%,
+    #181818 100%
+  );
+
+  /* Deezer Primary Colors */
+  --deezer-primary: #00c7f2;
+  --deezer-primary-hover: #1ad1f3;
+  --deezer-primary-dark: #0099c2;
+  --deezer-black: #191414;
+  --deezer-white: #ffffff;
+
+  /* Deezer Background Colors */
+  --deezer-bg-primary: #121212;
+  --deezer-bg-secondary: #181818;
+  --deezer-bg-tertiary: #282828;
+  --deezer-bg-elevated: #404040;
+  --deezer-bg-highlight: #535353;
+
+  /* Deezer Text Colors */
+  --deezer-text-primary: #ffffff;
+  --deezer-text-secondary: #b3b3b3;
+  --deezer-text-tertiary: #727272;
+  --deezer-text-subdued: #a7a7a7;
+
+  /* Deezer Border Colors */
+  --deezer-border-light: #282828;
+  --deezer-border-medium: #404040;
+  --deezer-border-heavy: #535353;
+
+  /* Deezer State Colors */
+  --deezer-hover: #282828;
+  --deezer-active: #404040;
+  --deezer-focus: #00c7f2;
+  --deezer-error: #e91429;
+  --deezer-warning: #ffa726;
+  --deezer-success: #00c7f2;
+
+  /* Deezer Gradient Colors */
+  --deezer-gradient-primary: linear-gradient(135deg, #00c7f2 0%, #1ad1f3 100%);
+  --deezer-gradient-secondary: linear-gradient(
+    135deg,
+    #282828 0%,
+    #404040 100%
+  );
+  --deezer-gradient-dark: linear-gradient(135deg, #121212 0%, #181818 100%);
+}
+
+/* Service Component Classes */
+.service-card {
+  background-color: var(--service-bg-secondary);
+  border: 1px solid var(--service-border-light);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.service-card:hover {
+  background-color: var(--service-bg-tertiary);
+  border-color: var(--service-border-medium);
+}
+
+.service-button {
+  background-color: var(--service-primary);
+  color: var(--service-white);
+  border: none;
+  border-radius: 500px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.service-button:hover {
+  background-color: var(--service-primary-hover);
+  transform: scale(1.02);
+}
+
+.service-button-secondary {
+  background-color: transparent;
+  color: var(--service-text-primary);
+  border: 1px solid var(--service-border-medium);
+  border-radius: 500px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.service-button-secondary:hover {
+  background-color: var(--service-hover);
+  border-color: var(--service-border-heavy);
+}
+
+.service-input {
+  background-color: var(--service-bg-tertiary);
+  border: 1px solid var(--service-border-light);
+  border-radius: 4px;
+  color: var(--service-text-primary);
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.service-input:focus {
+  border-color: var(--service-focus);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+}
+
+.spotify-bg-primary {
+  background-color: var(--spotify-bg-primary);
+}
+
+.spotify-bg-secondary {
+  background-color: var(--spotify-bg-secondary);
+}
+
+.spotify-bg-tertiary {
+  background-color: var(--spotify-bg-tertiary);
+}
+
+.spotify-text-primary {
+  color: var(--spotify-text-primary);
+}
+
+.spotify-text-secondary {
+  color: var(--spotify-text-secondary);
+}
+
+.spotify-text-tertiary {
+  color: var(--spotify-text-tertiary);
+}
+/* End Generation Here */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

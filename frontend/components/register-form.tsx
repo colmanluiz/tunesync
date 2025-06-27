@@ -65,10 +65,13 @@ export function RegisterForm({
 
         const userData = {
           id: response.data.user.id,
-          name: response.data.user.name,
           email: response.data.user.email,
+          name: response.data.user.name,
           emailVerified: response.data.user.emailVerified,
+          googleId: response.data.user.googleId,
           createdAt: response.data.user.createdAt,
+          updatedAt: response.data.user.updatedAt,
+          serviceConnections: [], // new users start with no connections
         };
 
         login(response.data.token, userData);

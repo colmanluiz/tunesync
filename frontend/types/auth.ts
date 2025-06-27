@@ -1,10 +1,4 @@
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  emailVerified: boolean;
-  createdAt: Date;
-}
+import { User, ServiceConnection } from './services';
 
 export interface StoredAuthData {
   token: string;
@@ -13,8 +7,10 @@ export interface StoredAuthData {
 
 export interface AuthContextType {
   user: User | null;
+  serviceConnections: ServiceConnection[];
   isLoading: boolean;
   login: (token: string, user: User) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  refreshServiceConnections: () => void;
 }
