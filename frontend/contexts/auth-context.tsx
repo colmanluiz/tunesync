@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearStorage = () => {
     try {
       localStorage.removeItem("authData");
+      localStorage.removeItem("token");
     } catch (error) {
       console.error("Failed to clear auth data:", error);
     }

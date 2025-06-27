@@ -62,7 +62,7 @@ export function LoginForm({
         login(response.data.token, userData);
 
         toast.success("Login successful!");
-        // router.push("/dashboard");
+        router.push("/");
       }
     } catch (error: any) {
       console.error("Login error", error);

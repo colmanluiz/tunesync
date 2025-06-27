@@ -74,7 +74,7 @@ export function RegisterForm({
         login(response.data.token, userData);
 
         toast.success("Account created successfully!");
-        // router.push("/dashboard");
+        router.push("/");
       }
     } catch (error: any) {
       if (error.response?.status === 409) {
