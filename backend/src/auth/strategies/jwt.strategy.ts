@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       userId: payload.sub,
       email: payload.email,
-      spotifyAccessToken: payload.spotifyAccessToken,
+      spotifyAccessToken: payload.spotifyAccessToken || null,
     };
   }
 }

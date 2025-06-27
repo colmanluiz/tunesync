@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { SpotifyService } from 'src/auth/spotify/spotify.service';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -8,16 +9,21 @@ export class PlaylistService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly httpService: HttpService,
-  ) {}
+    private readonly spotifyService: SpotifyService,
+  ) { }
 
   /**
    * Fetch all playlists for a user from Spotify
    * @param userId - The user's ID in our system
-   * @param accessToken - The Spotify access token
+   * @param accessToken - The Spotify access token (optional, will be fetched if not provided)
    * @returns Array of playlists with comprehensive information
    */
-  async getSpotifyPlaylists(userId: string, accessToken: string) {
+  async getSpotifyPlaylists(userId: string, accessToken?: string) {
     try {
+      // Use provided token or get a valid one from the database
+      const validAccessToken =
+        accessToken || (await this.spotifyService.getValidAccessToken(userId));
+
       const connection = await this.prisma.serviceConnection.findUnique({
         where: {
           userId_serviceType: {
@@ -34,7 +40,7 @@ export class PlaylistService {
       const { data } = await firstValueFrom(
         this.httpService.get('https://api.spotify.com/v1/me/playlists', {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${validAccessToken}`,
           },
           params: {
             limit: 50,
@@ -107,15 +113,19 @@ export class PlaylistService {
    * Get detailed information about a specific playlist
    * @param userId - The user's ID in our system
    * @param playlistId - The playlist's ID in our system
-   * @param accessToken - The Spotify access token
+   * @param accessToken - The Spotify access token (optional, will be fetched if not provided)
    * @returns Playlist details including tracks
    */
   async getPlaylistDetails(
     userId: string,
-    accessToken: string,
     playlistId: string,
+    accessToken?: string,
   ) {
     try {
+      // Use provided token or get a valid one from the database
+      const validAccessToken =
+        accessToken || (await this.spotifyService.getValidAccessToken(userId));
+
       const playlist = await this.prisma.playlist.findUnique({
         where: { id: playlistId },
         include: {
@@ -135,7 +145,7 @@ export class PlaylistService {
           `https://api.spotify.com/v1/playlists/${playlist.serviceId}`,
           {
             headers: {
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${validAccessToken}`,
             },
           },
         ),
@@ -217,22 +227,25 @@ export class PlaylistService {
   /**
    * Create a new playlist on Spotify
    * @param userId - The user's ID in our system
-   * @param accessToken - The Spotify access token
    * @param name - The name of the playlist
    * @param description - Optional description of the playlist
+   * @param accessToken - The Spotify access token (optional, will be fetched if not provided)
    * @returns The created playlist
    */
   async createSpotifyPlaylist(
     userId: string,
-    accessToken: string,
     name: string,
     description: string,
+    accessToken?: string,
   ) {
     try {
+      // Use provided token or get a valid one from the database
+      const validAccessToken = accessToken || await this.spotifyService.getValidAccessToken(userId);
+
       const { data: profile } = await firstValueFrom(
         this.httpService.get('https://api.spotify.com/v1/me', {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${validAccessToken}`,
           },
         }),
       );
@@ -247,7 +260,7 @@ export class PlaylistService {
           },
           {
             headers: {
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${validAccessToken}`,
               'Content-Type': 'application/json',
             },
           },
@@ -276,18 +289,21 @@ export class PlaylistService {
   /**
    * Add tracks to a Spotify playlist
    * @param userId - The user's ID in our system
-   * @param accessToken - The Spotify access token
    * @param playlistId - The playlist's ID in our system
    * @param trackUris - Array of Spotify track URIs to add
+   * @param accessToken - The Spotify access token (optional, will be fetched if not provided)
    * @returns The updated playlist with its tracks
    */
   async addTracksToPlaylist(
     userId: string,
-    accessToken: string,
     playlistId: string,
     trackUris: string[],
+    accessToken?: string,
   ) {
     try {
+      // Use provided token or get a valid one from the database
+      const validAccessToken = accessToken || await this.spotifyService.getValidAccessToken(userId);
+
       const playlist = await this.prisma.playlist.findUnique({
         where: { id: playlistId },
         include: {
@@ -310,7 +326,7 @@ export class PlaylistService {
           },
           {
             headers: {
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${validAccessToken}`,
               'Content-Type': 'application/json',
             },
           },
@@ -322,7 +338,7 @@ export class PlaylistService {
           `https://api.spotify.com/v1/playlists/${playlist.serviceId}`,
           {
             headers: {
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${validAccessToken}`,
             },
           },
         ),

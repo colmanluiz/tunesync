@@ -15,14 +15,14 @@ interface RequestWithUser extends Request {
   user: {
     userId: string;
     email: string;
-    spotifyAccessToken: string;
+    spotifyAccessToken?: string;
   };
 }
 
 @Controller('playlists')
 @UseGuards(JwtAuthGuard)
 export class PlaylistController {
-  constructor(private readonly playlistService: PlaylistService) {}
+  constructor(private readonly playlistService: PlaylistService) { }
 
   @Get('spotify')
   async getSpotifyPlaylists(@Req() req: RequestWithUser) {
@@ -38,8 +38,8 @@ export class PlaylistController {
     const { userId, spotifyAccessToken } = req.user;
     return this.playlistService.getPlaylistDetails(
       userId,
-      spotifyAccessToken,
       playlistId,
+      spotifyAccessToken,
     );
   }
 
@@ -51,9 +51,9 @@ export class PlaylistController {
     const { userId, spotifyAccessToken } = req.user;
     return this.playlistService.createSpotifyPlaylist(
       userId,
-      spotifyAccessToken,
       body.name,
       body.description || '',
+      spotifyAccessToken,
     );
   }
 
@@ -66,9 +66,9 @@ export class PlaylistController {
     const { userId, spotifyAccessToken } = req.user;
     return this.playlistService.addTracksToPlaylist(
       userId,
-      spotifyAccessToken,
       playlistId,
       body.trackUris,
+      spotifyAccessToken,
     );
   }
 }

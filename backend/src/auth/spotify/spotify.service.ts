@@ -22,7 +22,7 @@ export class SpotifyService {
     private readonly config: ConfigService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async getAuthUrl(): Promise<string> {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
@@ -90,7 +90,7 @@ export class SpotifyService {
   /**
    * @param code - The authorization code from Spotify
    * @param userId - The ID of the user in our system
-   * @returns The user's profile and JWT token
+   * @returns The user's profile and connection status
    */
   async handleCallback(code: string, userId: string) {
     try {
@@ -120,19 +120,119 @@ export class SpotifyService {
         },
       });
 
-      const jwtToken = this.jwtService.generateToken({
-        sub: userId,
-        email: profile.email,
-        spotifyAccessToken: tokens.access_token,
-      });
-
       return {
         success: true,
         profile,
-        token: jwtToken,
+        message: 'Spotify connected successfully',
       };
     } catch (error) {
       throw new Error(`Failed to handle Spotify callback: ${error.message}`);
     }
+  }
+
+  private async refreshSpotifyToken(refreshToken: string) {
+    const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
+    const clientSecret = this.config.get<string>('SPOTIFY_CLIENT_SECRET');
+
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.post(
+          'https://accounts.spotify.com/api/token',
+          {
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Authorization: `Basic ${auth}`,
+            },
+          },
+        ),
+      );
+
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to refresh Spotify token: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get a valid Spotify access token for a user, refreshing if necessary
+   */
+  async getValidAccessToken(userId: string): Promise<string> {
+    const connection = await this.prisma.serviceConnection.findUnique({
+      where: {
+        userId_serviceType: {
+          userId,
+          serviceType: 'SPOTIFY',
+        },
+      },
+    });
+
+    if (!connection) {
+      throw new Error('Spotify connection not found');
+    }
+
+    // Check if token is expired or will expire soon (within 5 minutes)
+    if (!connection.expiresAt) {
+      throw new Error('Spotify token expiration not set');
+    }
+
+    const expiresAt = new Date(connection.expiresAt);
+    const now = new Date();
+    const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000);
+
+    if (expiresAt <= fiveMinutesFromNow) {
+      // Token is expired or will expire soon, refresh it
+      if (!connection.refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const newTokens = await this.refreshSpotifyToken(connection.refreshToken);
+
+      // Update the connection with new tokens
+      await this.prisma.serviceConnection.update({
+        where: {
+          userId_serviceType: {
+            userId,
+            serviceType: 'SPOTIFY',
+          },
+        },
+        data: {
+          accessToken: newTokens.access_token,
+          refreshToken: newTokens.refresh_token || connection.refreshToken, // Spotify might not return refresh_token
+          expiresAt: new Date(Date.now() + newTokens.expires_in * 1000),
+        },
+      });
+
+      return newTokens.access_token;
+    }
+
+    return connection.accessToken;
+  }
+
+  /**
+   * Generate a new JWT token with the current Spotify access token
+   */
+  async generateJwtWithSpotifyToken(userId: string): Promise<string> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Get a valid Spotify access token
+    const spotifyAccessToken = await this.getValidAccessToken(userId);
+
+    return this.jwtService.generateToken({
+      sub: userId,
+      email: user.email,
+      spotifyAccessToken,
+    });
   }
 }
