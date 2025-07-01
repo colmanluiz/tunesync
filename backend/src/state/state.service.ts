@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
-import { RedisService } from "src/redis/redis.service";
-import * as crypto from 'crypto'
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { RedisService } from 'src/redis/redis.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class StateService {
@@ -10,25 +10,25 @@ export class StateService {
 
   constructor(
     private readonly redisService: RedisService,
-    private readonly prisma: PrismaService
-  ) { }
+    private readonly prisma: PrismaService,
+  ) {}
 
   /**
    * Create a state token for OAuth, store userId in Redis, and return the state string
    */
   async createState(userId: string): Promise<string> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } })
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
 
-    if (!user) throw new Error('User ID does not match to any existant user.')
+    if (!user) throw new Error('User ID does not match to any existant user.');
 
-    const state = crypto.randomBytes(16).toString('hex')
+    const state = crypto.randomBytes(16).toString('hex');
     await this.redisService.set(
       this.STATE_PREFIX + state,
       user.id,
-      this.STATE_TTL
+      this.STATE_TTL,
     );
 
-    return state
+    return state;
   }
 
   /**
@@ -40,7 +40,7 @@ export class StateService {
     if (userId) {
       return userId;
     }
-    throw new Error("No userId found for this state (or state already used)");
+    throw new Error('No userId found for this state (or state already used)');
   }
 
   /**

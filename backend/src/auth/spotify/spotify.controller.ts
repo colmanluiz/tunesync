@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { SpotifyService } from './spotify.service';
 import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,7 +19,7 @@ export class SpotifyController {
     private readonly spotifyService: SpotifyService,
     private readonly prisma: PrismaService,
     private readonly stateService: StateService,
-  ) { }
+  ) {}
 
   @Post('state')
   @UseGuards(JwtAuthGuard)
@@ -60,15 +68,12 @@ export class SpotifyController {
         throw new Error('Invalid state or state expired');
       }
 
-      const user = await this.prisma.user.findUnique({ where: { id: userId } })
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
       if (!user) {
         throw new Error('User not found');
       }
 
-      const result = await this.spotifyService.handleCallback(
-        code,
-        user.id,
-      );
+      const result = await this.spotifyService.handleCallback(code, user.id);
 
       // Generate a new JWT with the Spotify access token
       const newJwtToken = await this.spotifyService.generateJwtWithSpotifyToken(
@@ -138,7 +143,10 @@ export class SpotifyController {
 
       return {
         connected: !!connection,
-        hasValidToken: connection && connection.expiresAt ? new Date(connection.expiresAt) > new Date() : false,
+        hasValidToken:
+          connection && connection.expiresAt
+            ? new Date(connection.expiresAt) > new Date()
+            : false,
         serviceUserId: connection?.serviceUserId,
       };
     } catch (error) {

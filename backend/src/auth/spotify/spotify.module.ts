@@ -23,10 +23,10 @@ import { StateModule } from 'src/state/state.module';
       inject: [ConfigService],
     }),
     PrismaModule,
-    StateModule
+    StateModule,
   ],
   controllers: [SpotifyController],
   providers: [SpotifyService, JwtService],
   exports: [SpotifyService],
 })
-export class SpotifyModule { }
+export class SpotifyModule {}

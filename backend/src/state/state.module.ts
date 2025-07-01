@@ -6,4 +6,4 @@ import { RedisModule } from 'src/redis/redis.module';
   providers: [StateService],
   exports: [StateService],
 })
-export class StateModule { }
+export class StateModule {}

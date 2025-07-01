@@ -19,7 +19,7 @@ import { GoogleOauthGuard } from './guards/google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   // User Auth
   @Post('register')
@@ -58,7 +58,7 @@ export class AuthController {
   // Google Auth
   @Get('google/login')
   @UseGuards(GoogleOauthGuard)
-  async googleLogin() { }
+  async googleLogin() {}
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)

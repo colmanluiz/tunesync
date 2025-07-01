@@ -22,7 +22,7 @@ interface RequestWithUser extends Request {
 @Controller('playlists')
 @UseGuards(JwtAuthGuard)
 export class PlaylistController {
-  constructor(private readonly playlistService: PlaylistService) { }
+  constructor(private readonly playlistService: PlaylistService) {}
 
   @Get('spotify')
   async getSpotifyPlaylists(@Req() req: RequestWithUser) {

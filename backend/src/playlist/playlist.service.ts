@@ -10,7 +10,7 @@ export class PlaylistService {
     private readonly prisma: PrismaService,
     private readonly httpService: HttpService,
     private readonly spotifyService: SpotifyService,
-  ) { }
+  ) {}
 
   /**
    * Fetch all playlists for a user from Spotify
@@ -240,7 +240,8 @@ export class PlaylistService {
   ) {
     try {
       // Use provided token or get a valid one from the database
-      const validAccessToken = accessToken || await this.spotifyService.getValidAccessToken(userId);
+      const validAccessToken =
+        accessToken || (await this.spotifyService.getValidAccessToken(userId));
 
       const { data: profile } = await firstValueFrom(
         this.httpService.get('https://api.spotify.com/v1/me', {
@@ -302,7 +303,8 @@ export class PlaylistService {
   ) {
     try {
       // Use provided token or get a valid one from the database
-      const validAccessToken = accessToken || await this.spotifyService.getValidAccessToken(userId);
+      const validAccessToken =
+        accessToken || (await this.spotifyService.getValidAccessToken(userId));
 
       const playlist = await this.prisma.playlist.findUnique({
         where: { id: playlistId },

@@ -22,7 +22,7 @@ export class SpotifyService {
     private readonly config: ConfigService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async getAuthUrl(state?: string): Promise<string> {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
@@ -33,13 +33,14 @@ export class SpotifyService {
       client_id: clientId,
       scope: this.scopes.join(' '),
       redirect_uri: redirectURI,
-    }
+    };
 
     if (state) {
       params.state = state;
     }
 
-    const authUrl = 'https://accounts.spotify.com/authorize?' + queryString.stringify(params);
+    const authUrl =
+      'https://accounts.spotify.com/authorize?' + queryString.stringify(params);
 
     return authUrl;
   }
