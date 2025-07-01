@@ -19,7 +19,7 @@ import { GoogleOauthGuard } from './guards/google-oauth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   // User Auth
   @Post('register')
@@ -30,6 +30,12 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getCurrentUser(@Request() req) {
+    return this.authService.getCurrentUser(req.user.userId);
   }
 
   @Post('logout')
@@ -52,7 +58,7 @@ export class AuthController {
   // Google Auth
   @Get('google/login')
   @UseGuards(GoogleOauthGuard)
-  async googleLogin() {}
+  async googleLogin() { }
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)

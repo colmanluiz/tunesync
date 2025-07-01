@@ -21,7 +21,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto) {
     const existingUser = await this.prisma.user.findUnique({
@@ -122,6 +122,36 @@ export class AuthService {
     // For now, we'll just return success
     // In a more advanced implementation, we might blacklist tokens
     return { message: 'Logged out successfully' };
+  }
+
+  async getCurrentUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        emailVerified: true,
+        googleId: true,
+        createdAt: true,
+        updatedAt: true,
+        serviceConnections: {
+          select: {
+            id: true,
+            serviceType: true,
+            serviceUserId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return { user };
   }
 
   async handleGoogleLogin(googleProfile) {

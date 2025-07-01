@@ -40,7 +40,6 @@ export class SpotifyController {
     @Query('code') code: string,
     @Query('error') error: string,
     @Query('state') state: string,
-    @Req() req: Request,
     @Res() res: Response,
   ) {
     try {
@@ -76,18 +75,21 @@ export class SpotifyController {
         user.id,
       );
 
-      // TO:DO Redirect to a success page
       res.json({
         message: 'Spotify connection successful!',
         profile: result.profile,
         token: newJwtToken, // Updated JWT with Spotify token
       });
+
+      // res.redirect(`${process.env.FRONTEND_URL}/spotify/success?token=${newJwtToken}`);
     } catch (error) {
       // TO:DO Redirect to an error page
       res.status(400).json({
         message: 'Failed to connect Spotify',
         error: error.message,
       });
+
+      // res.redirect(`${process.env.FRONTEND_URL}/spotify/error?error=${error.message}&state=${state}`);
     }
   }
 
