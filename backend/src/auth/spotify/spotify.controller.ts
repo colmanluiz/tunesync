@@ -1,28 +1,45 @@
-import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { SpotifyService } from './spotify.service';
 import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { StateService } from 'src/state/state.service';
 
 @Controller('auth/spotify')
 export class SpotifyController {
   constructor(
     private readonly spotifyService: SpotifyService,
     private readonly prisma: PrismaService,
+    private readonly stateService: StateService,
   ) { }
 
+  @Post('state')
+  @UseGuards(JwtAuthGuard)
+  async getState(@Req() req: Request) {
+    const user = req.user as any;
+    if (!user || !user.userId) {
+      throw new Error('User not authenticated');
+    }
+
+    const state = await this.stateService.createState(user.userId);
+
+    return {
+      state: state,
+    };
+  }
+
   @Get('login')
-  async login(@Res() res: Response) {
-    const authUrl = await this.spotifyService.getAuthUrl();
+  async login(@Query('state') state: string, @Res() res: Response) {
+    const authUrl = await this.spotifyService.getAuthUrl(state);
 
     res.redirect(authUrl);
   }
 
   @Get('callback')
-  @UseGuards(JwtAuthGuard)
   async callback(
     @Query('code') code: string,
     @Query('error') error: string,
+    @Query('state') state: string,
     @Req() req: Request,
     @Res() res: Response,
   ) {
@@ -35,21 +52,28 @@ export class SpotifyController {
         throw new Error('No authorization code received');
       }
 
-      // Extract userId from JWT
-      // req.user is set by JwtAuthGuard
-      const user = req.user as any;
-      if (!user || !user.userId) {
-        throw new Error('User not authenticated');
+      if (!state) {
+        throw new Error('No state received');
+      }
+
+      const userId = await this.stateService.popUserIdByState(state);
+      if (!userId) {
+        throw new Error('Invalid state or state expired');
+      }
+
+      const user = await this.prisma.user.findUnique({ where: { id: userId } })
+      if (!user) {
+        throw new Error('User not found');
       }
 
       const result = await this.spotifyService.handleCallback(
         code,
-        user.userId,
+        user.id,
       );
 
       // Generate a new JWT with the Spotify access token
       const newJwtToken = await this.spotifyService.generateJwtWithSpotifyToken(
-        user.userId,
+        user.id,
       );
 
       // TO:DO Redirect to a success page

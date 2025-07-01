@@ -24,18 +24,22 @@ export class SpotifyService {
     private readonly jwtService: JwtService,
   ) { }
 
-  async getAuthUrl(): Promise<string> {
+  async getAuthUrl(state?: string): Promise<string> {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
     const redirectURI = this.config.get<string>('SPOTIFY_REDIRECT_URI');
 
-    const authUrl =
-      'https://accounts.spotify.com/authorize?' +
-      queryString.stringify({
-        response_type: 'code',
-        client_id: clientId,
-        scope: this.scopes.join(' '),
-        redirect_uri: redirectURI,
-      });
+    const params: any = {
+      response_type: 'code',
+      client_id: clientId,
+      scope: this.scopes.join(' '),
+      redirect_uri: redirectURI,
+    }
+
+    if (state) {
+      params.state = state;
+    }
+
+    const authUrl = 'https://accounts.spotify.com/authorize?' + queryString.stringify(params);
 
     return authUrl;
   }

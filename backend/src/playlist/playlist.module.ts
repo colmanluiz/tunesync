@@ -13,4 +13,4 @@ import { SpotifyModule } from '../auth/spotify/spotify.module';
   providers: [PlaylistService, PlaylistSyncService],
   exports: [PlaylistService, PlaylistSyncService],
 })
-export class PlaylistModule {}
+export class PlaylistModule { }

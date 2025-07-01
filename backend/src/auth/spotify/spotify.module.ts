@@ -6,6 +6,7 @@ import { SpotifyController } from './spotify.controller';
 import { SpotifyService } from './spotify.service';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { JwtService } from '../jwt.service';
+import { StateModule } from 'src/state/state.module';
 
 @Module({
   imports: [
@@ -22,9 +23,10 @@ import { JwtService } from '../jwt.service';
       inject: [ConfigService],
     }),
     PrismaModule,
+    StateModule
   ],
   controllers: [SpotifyController],
   providers: [SpotifyService, JwtService],
   exports: [SpotifyService],
 })
-export class SpotifyModule {}
+export class SpotifyModule { }
