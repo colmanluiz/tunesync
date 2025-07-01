@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
 import { PasswordInput } from "./ui/password-input";
 import Link from "next/link";
-import api from "@/lib/api";
+import { login as loginApi } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -43,26 +43,21 @@ export function LoginForm({
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
     setIsLoading(true);
     try {
-      const response = await api.post("/auth/login", {
-        email: values.email,
-        password: values.password,
-      });
+      const response = await loginApi(values.email, values.password);
 
-      if (response && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-
+      if (response && response.token) {
         const userData = {
-          id: response.data.user.id,
-          email: response.data.user.email,
-          name: response.data.user.name,
-          emailVerified: response.data.user.emailVerified,
-          googleId: response.data.user.googleId,
-          createdAt: response.data.user.createdAt,
-          updatedAt: response.data.user.updatedAt,
-          serviceConnections: response.data.user.serviceConnections || [],
+          id: response.user.id,
+          email: response.user.email,
+          name: response.user.name,
+          emailVerified: response.user.emailVerified,
+          googleId: response.user.googleId,
+          createdAt: response.user.createdAt,
+          updatedAt: response.user.updatedAt,
+          serviceConnections: response.user.serviceConnections || [],
         };
 
-        login(response.data.token, userData);
+        login(response.token, userData);
 
         toast.success("Login successful!");
         router.push("/");

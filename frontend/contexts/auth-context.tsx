@@ -1,6 +1,7 @@
 "use client";
 
-import { User, StoredAuthData, AuthContextType } from "@/types/auth";
+import { StoredAuthData, AuthContextType } from "@/types/auth";
+import { User } from "@/types/services";
 import {
   createContext,
   ReactNode,
@@ -8,6 +9,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import api from "@/lib/api";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -18,6 +20,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const saveToStorage = (data: StoredAuthData) => {
     try {
       localStorage.setItem("authData", JSON.stringify(data));
+      // Also store token separately for API client
+      localStorage.setItem("token", data.token);
     } catch (error) {
       console.error("Failed to save auth data:", error);
     }
@@ -42,14 +46,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    const storedData = loadFromStorage();
-
-    if (storedData) {
-      setUser(storedData.user);
+  const validateToken = async (token: string): Promise<boolean> => {
+    try {
+      // Set token temporarily for validation request
+      localStorage.setItem("token", token);
+      await api.get("/auth/me");
+      return true;
+    } catch (error) {
+      console.error("Token validation failed:", error);
+      return false;
     }
+  };
 
-    setIsLoading(false);
+  const refreshUser = async () => {
+    try {
+      const response = await api.get("/auth/me");
+      if (response.data.user) {
+        setUser(response.data.user);
+        // Update stored user data
+        const storedData = loadFromStorage();
+        if (storedData) {
+          saveToStorage({ ...storedData, user: response.data.user });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refresh user:", error);
+      // If refresh fails, logout user
+      logout();
+    }
+  };
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const storedData = loadFromStorage();
+
+      if (storedData?.token) {
+        // Validate token on app startup
+        const isValid = await validateToken(storedData.token);
+
+        if (isValid) {
+          setUser(storedData.user);
+        } else {
+          // Token is invalid, clear storage
+          clearStorage();
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = (token: string, user: User) => {
@@ -68,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     isAuthenticated: !!user,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,7 +9,7 @@ export default function ServicesPage() {
       name: "Spotify",
       description: "Connect your Spotify account",
       icon: <FaSpotify className="w-10 h-10" />,
-      connectUrl: "/auth/spotify/login",
+      connectUrl: "/spotify/login",
     },
     {
       id: "YOUTUBE" as ServiceType,

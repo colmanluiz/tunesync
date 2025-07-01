@@ -61,8 +61,6 @@ export function RegisterForm({
       });
 
       if (response && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-
         const userData = {
           id: response.data.user.id,
           email: response.data.user.email,

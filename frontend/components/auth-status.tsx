@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 
 export function AuthStatus() {
-  const { user, profile, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
 
   if (!isAuthenticated) {
     return <div className="text-sm text-gray-600">Not logged in</div>;
@@ -12,7 +12,7 @@ export function AuthStatus() {
   return (
     <div className="flex items-center space-x-2">
       <div className="text-sm">
-        <div className="font-medium">{profile?.display_name}</div>
+        <div className="font-medium">{user?.name || "User"}</div>
         <div className="text-gray-500">{user?.email}</div>
       </div>
       <button
