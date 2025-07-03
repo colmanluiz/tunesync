@@ -22,7 +22,7 @@ export class SpotifyService {
     private readonly config: ConfigService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async getAuthUrl(state?: string): Promise<string> {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
@@ -76,7 +76,7 @@ export class SpotifyService {
     }
   }
 
-  private async getUserProfile(accessToken: string) {
+  async getUserProfile(accessToken: string) {
     try {
       const { data } = await firstValueFrom(
         this.httpService.get('https://api.spotify.com/v1/me', {

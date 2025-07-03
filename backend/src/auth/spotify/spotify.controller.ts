@@ -19,7 +19,7 @@ export class SpotifyController {
     private readonly spotifyService: SpotifyService,
     private readonly prisma: PrismaService,
     private readonly stateService: StateService,
-  ) {}
+  ) { }
 
   @Post('state')
   @UseGuards(JwtAuthGuard)
@@ -80,11 +80,34 @@ export class SpotifyController {
         user.id,
       );
 
-      res.json({
-        message: 'Spotify connection successful!',
-        profile: result.profile,
-        token: newJwtToken, // Updated JWT with Spotify token
-      });
+      // res.json({
+      //   message: 'Spotify connection successful!',
+      //   profile: result.profile,
+      //   token: newJwtToken, // Updated JWT with Spotify token
+      // });
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <body>
+            <script>
+              // Send a message to the opener window
+              window.opener.postMessage(
+                {
+                  type: "SPOTIFY_AUTH_SUCCESS",
+                  token: "${newJwtToken}"
+                },
+                "*"
+              );
+              window.close();
+            </script>
+            <p>Spotify authentication successful. You can close this window.</p>
+          </body>
+        </html>
+      `
+
+      res.setHeader('Content-Type', 'text/html');
+      res.send(html);
 
       // res.redirect(`${process.env.FRONTEND_URL}/spotify/success?token=${newJwtToken}`);
     } catch (error) {
@@ -156,5 +179,31 @@ export class SpotifyController {
         error: error.message,
       };
     }
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Req() req: Request) {
+    const user = req.user as any;
+    if (!user || !user.userId) {
+      throw new Error('User not authenticated');
+    }
+
+    const connection = await this.prisma.serviceConnection.findUnique({
+      where: {
+        userId_serviceType: {
+          userId: user.userId,
+          serviceType: 'SPOTIFY',
+        },
+      },
+    });
+
+    if (!connection) {
+      throw new Error('Spotify connection not found');
+    }
+
+    const profile = await this.spotifyService.getUserProfile(connection.accessToken);
+
+    return profile;
   }
 }

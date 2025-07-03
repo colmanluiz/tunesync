@@ -1,12 +1,25 @@
 "use client";
 import { ProtectedRoute } from "@/components/protected-route";
 import api from "@/lib/api";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SpotifyLoginPage() {
+  const router = useRouter();
   useEffect(() => {
     // Auto-trigger Spotify login when component mounts
     handleSpotifyLogin();
+
+    function handleMessage(event: MessageEvent) {
+      if (event.data?.type === "SPOTIFY_AUTH_SUCCESS") {
+        console.log("Spotify auth success", event.data);
+        router.push(`/spotify/success?token=${event.data.token}`);
+      } else {
+        console.log("Spotify auth error", event.data);
+      }
+    }
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
   const handleSpotifyLogin = async () => {
