@@ -112,6 +112,36 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
+/* primary */
+:root {
+  --honeysuckle-50: #f4ff77;
+  --honeysuckle-100: #ecfa00;
+  --honeysuckle-200: #d8e400;
+  --honeysuckle-300: #c0cb00;
+  --honeysuckle-400: #a6af00;
+  --honeysuckle-500: #8b9300;
+  --honeysuckle-600: #6f7500;
+  --honeysuckle-700: #535800;
+  --honeysuckle-800: #383c00;
+  --honeysuckle-900: #1e2000;
+  --honeysuckle-950: #111200;
+}
+
+/* secondary */
+:root {
+  --silver-50: #f1f1f1;
+  --silver-100: #dcdcdc;
+  --silver-200: #bebebe;
+  --silver-300: #aeaeae;
+  --silver-400: #999999;
+  --silver-500: #818181;
+  --silver-600: #686868;
+  --silver-700: #4f4f4f;
+  --silver-800: #363636;
+  --silver-900: #1d1d1d;
+  --silver-950: #111111;
+}
+
 /* Start of Selection */
 /* Start Generation Here */
 /* Service Color Palettes */
