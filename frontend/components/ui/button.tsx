@@ -14,11 +14,15 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border bg-background shadow-xs hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 hover:border-(--honeysuckle-300) hover:text-(--honeysuckle-300) transition-all duration-300",
         primary:
-          "bg-(--honeysuckle-100) text-black hover:bg-(--honeysuckle-200) focus-visible:ring-(--honeysuckle-400) shadow-xs",
+          "bg-(--honeysuckle-100) text-(--honeysuckle-950) hover:bg-(--honeysuckle-900) hover:text-(--honeysuckle-100) focus-visible:ring-(--honeysuckle-400) shadow-sm py-[16px] px-[33px] transition-all duration-300",
         secondary:
+          "bg-(--jonquil-100) text-(--jonquil-950) hover:bg-(--jonquil-200) focus-visible:ring-(--jonquil-400) shadow-sm py-[16px] px-[33px]",
+        cta: "bg-(--honeysuckle-100) hover:bg-(--honeysuckle-900) hover:text-(--honeysuckle-100) text-black text-[1rem] shadow-xl transition-all duration-300",
+        neutral:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+        none: "text-(--honeysuckle-300) hover:text-(--honeysuckle-400) hover:bg-transparent text-md",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
@@ -27,6 +31,8 @@ const buttonVariants = cva(
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        xl: "h-12 rounded-2xl px-8 has-[>svg]:px-6",
+        custom: "rounded-2xl px-[32px] py-[20px] has-[>svg]:px-[20px]",
         icon: "size-9",
       },
     },

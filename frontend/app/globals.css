@@ -6,8 +6,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-inter);
+  --font-satoshi: "Satoshi", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -116,6 +117,7 @@
 :root {
   --honeysuckle-50: #f4ff77;
   --honeysuckle-100: #ecfa00;
+  --honeysuckle-150: #e6f700;
   --honeysuckle-200: #d8e400;
   --honeysuckle-300: #c0cb00;
   --honeysuckle-400: #a6af00;
@@ -129,6 +131,21 @@
 
 /* secondary */
 :root {
+  --jonquil-50: #e4f495;
+  --jonquil-100: #dded91;
+  --jonquil-200: #cad984;
+  --jonquil-300: #b4c175;
+  --jonquil-400: #9ba764;
+  --jonquil-500: #828c53;
+  --jonquil-600: #687042;
+  --jonquil-700: #4e5430;
+  --jonquil-800: #35391f;
+  --jonquil-900: #1c1f0f;
+  --jonquil-950: #101207;
+}
+
+/* tons of greys */
+:root {
   --silver-50: #f1f1f1;
   --silver-100: #dcdcdc;
   --silver-200: #bebebe;
@@ -140,6 +157,12 @@
   --silver-800: #363636;
   --silver-900: #1d1d1d;
   --silver-950: #111111;
+}
+
+/* background */
+:root {
+  --background-light: #f6f6f6;
+  --background-dark: #3d3d3d;
 }
 
 /* Start of Selection */
@@ -281,9 +304,9 @@
   );
 
   /* Deezer Primary Colors */
-  --deezer-primary: #00c7f2;
-  --deezer-primary-hover: #1ad1f3;
-  --deezer-primary-dark: #0099c2;
+  --deezer-primary: #a238ff;
+  --deezer-primary-hover: #b342ff;
+  --deezer-primary-dark: #8a32c2;
   --deezer-black: #191414;
   --deezer-white: #ffffff;
 
@@ -308,13 +331,13 @@
   /* Deezer State Colors */
   --deezer-hover: #282828;
   --deezer-active: #404040;
-  --deezer-focus: #00c7f2;
+  --deezer-focus: #a238ff;
   --deezer-error: #e91429;
   --deezer-warning: #ffa726;
-  --deezer-success: #00c7f2;
+  --deezer-success: #a238ff;
 
   /* Deezer Gradient Colors */
-  --deezer-gradient-primary: linear-gradient(135deg, #00c7f2 0%, #1ad1f3 100%);
+  --deezer-gradient-primary: linear-gradient(135deg, #a238ff 0%, #b342ff 100%);
   --deezer-gradient-secondary: linear-gradient(
     135deg,
     #282828 0%,
@@ -412,5 +435,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-inter), "Satoshi", system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .font-satoshi {
+    font-family: "Satoshi", system-ui, sans-serif;
+  }
+
+  .font-inter {
+    font-family: var(--font-inter), system-ui, sans-serif;
   }
 }
