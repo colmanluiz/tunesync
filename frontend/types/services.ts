@@ -1,4 +1,11 @@
-export type ServiceType = 'SPOTIFY' | 'YOUTUBE' | 'APPLE-MUSIC' | 'DEEZER';
+export type ServiceType =
+  | "SPOTIFY"
+  | "YOUTUBE"
+  | "APPLE-MUSIC"
+  | "AMAZON-MUSIC"
+  | "DEEZER"
+  | "SOUNDCLOUD"
+  | "TIDAL";
 
 export interface ServiceConnection {
   id: string;

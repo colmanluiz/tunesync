@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Music,
-  RefreshCw,
-  Shield,
-  Star,
-  Zap,
-  Share,
-} from "lucide-react";
+import { ArrowRight, Shield, Star, Share } from "lucide-react";
 import {
   MdDevices,
   MdLibraryMusic,
@@ -15,7 +7,6 @@ import {
   MdPlaylistAdd,
   MdRefresh,
   MdShuffle,
-  MdSupport,
   MdSupportAgent,
   MdSync,
   MdSyncAlt,
