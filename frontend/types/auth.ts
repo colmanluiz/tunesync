@@ -1,15 +1,24 @@
-import { User, ServiceConnection } from './services';
+import { User } from "./services";
 
 export interface StoredAuthData {
   token: string;
   user: User;
 }
 
-export interface AuthContextType {
+export type AuthStatus = "idle" | "loading" | "authenticated" | "error";
+
+export interface AuthState {
   user: User | null;
-  isLoading: boolean;
-  login: (token: string, user: User) => void;
+  status: AuthStatus;
+  error: string | null;
+}
+
+export interface AuthContextType extends AuthState {
+  login: (email: string, password: string) => Promise<void>;
+  loginWithToken: (token: string, user: User) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  isAuthenticated: boolean;
   refreshUser: () => Promise<void>;
+  isAuthenticated: boolean;
+  isLoading: boolean;
 }

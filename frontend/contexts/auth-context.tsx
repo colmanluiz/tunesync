@@ -1,131 +1,145 @@
 "use client";
 
-import { StoredAuthData, AuthContextType } from "@/types/auth";
+import { AuthContextType, AuthState } from "@/types/auth";
 import { User } from "@/types/services";
 import {
   createContext,
   ReactNode,
   useContext,
   useEffect,
-  useState,
+  useReducer,
 } from "react";
-import api from "@/lib/api";
+import { auth } from "@/lib/api";
+import { AuthStorage } from "@/lib/auth";
+
+type AuthAction =
+  | { type: "SET_LOADING" }
+  | { type: "SET_ERROR"; payload: string }
+  | { type: "SET_USER"; payload: { user: User | null } }
+  | { type: "CLEAR_ERROR" };
+
+const initialState: AuthState = {
+  user: null,
+  status: "idle",
+  error: null,
+};
+
+function authReducer(state: AuthState, action: AuthAction): AuthState {
+  switch (action.type) {
+    case "SET_LOADING":
+      return { ...state, status: "loading", error: null };
+    case "SET_ERROR":
+      return { ...state, status: "error", error: action.payload };
+    case "SET_USER":
+      return {
+        ...state,
+        user: action.payload.user,
+        status: action.payload.user ? "authenticated" : "idle",
+        error: null,
+      };
+    case "CLEAR_ERROR":
+      return { ...state, error: null };
+    default:
+      return state;
+  }
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const saveToStorage = (data: StoredAuthData) => {
-    try {
-      localStorage.setItem("authData", JSON.stringify(data));
-      // Also store token separately for API client
-      localStorage.setItem("token", data.token);
-      // Update API client's token
-      api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
-    } catch (error) {
-      console.error("Failed to save auth data:", error);
-    }
-  };
-
-  const loadFromStorage = (): StoredAuthData | null => {
-    try {
-      const data = localStorage.getItem("authData");
-      return data ? JSON.parse(data) : null;
-    } catch (error) {
-      console.error("Failed to load auth data:", error);
-      return null;
-    }
-  };
-
-  const clearStorage = () => {
-    try {
-      localStorage.removeItem("authData");
-      localStorage.removeItem("token");
-      // Clear API client's token
-      delete api.defaults.headers.common["Authorization"];
-    } catch (error) {
-      console.error("Failed to clear auth data:", error);
-    }
-  };
-
-  const validateToken = async (token: string): Promise<boolean> => {
-    try {
-      // Set token in API client
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      const response = await api.get("/auth/me");
-      return !!response.data.user;
-    } catch (error) {
-      console.error("Token validation failed:", error);
-      return false;
-    }
-  };
-
-  const refreshUser = async () => {
-    try {
-      const response = await api.get("/auth/me");
-      if (response.data.user) {
-        setUser(response.data.user);
-        // Update stored user data
-        const storedData = loadFromStorage();
-        if (storedData) {
-          saveToStorage({ ...storedData, user: response.data.user });
-        }
-      }
-    } catch (error) {
-      console.error("Failed to refresh user:", error);
-      // If refresh fails, logout user
-      logout();
-    }
-  };
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedData = loadFromStorage();
+      dispatch({ type: "SET_LOADING" });
 
-      if (storedData?.token) {
-        // Validate token on app startup
-        const isValid = await validateToken(storedData.token);
-
-        if (isValid) {
-          setUser(storedData.user);
-        } else {
-          // Token is invalid, clear storage
-          clearStorage();
-          setUser(null);
+      try {
+        const storedAuth = AuthStorage.getStoredAuth();
+        if (!storedAuth?.token) {
+          dispatch({ type: "SET_USER", payload: { user: null } });
+          return;
         }
-      }
 
-      setIsLoading(false);
+        const isValid = await auth.validateToken(storedAuth.token);
+        if (!isValid) {
+          AuthStorage.clearStoredAuth();
+          dispatch({ type: "SET_USER", payload: { user: null } });
+          return;
+        }
+
+        const user = await auth.getCurrentUser();
+        dispatch({ type: "SET_USER", payload: { user } });
+      } catch (error) {
+        dispatch({ type: "SET_ERROR", payload: "Failed to initialize auth" });
+      }
     };
 
     initializeAuth();
   }, []);
 
-  const login = async (token: string, user: User) => {
-    // Validate token before setting user
-    const isValid = await validateToken(token);
-    if (!isValid) {
-      throw new Error("Invalid token");
-    }
+  const login = async (email: string, password: string) => {
+    dispatch({ type: "SET_LOADING" });
 
-    setUser(user);
-    saveToStorage({ token, user });
+    try {
+      const { token, user } = await auth.login(email, password);
+      AuthStorage.setStoredAuth({ token, user });
+      dispatch({ type: "SET_USER", payload: { user } });
+    } catch (error) {
+      dispatch({ type: "SET_ERROR", payload: "Login failed" });
+      throw error;
+    }
+  };
+
+  const loginWithToken = async (token: string, user: User) => {
+    dispatch({ type: "SET_LOADING" });
+    try {
+      AuthStorage.setStoredAuth({ token, user });
+      dispatch({ type: "SET_USER", payload: { user } });
+    } catch (error) {
+      dispatch({ type: "SET_ERROR", payload: "Login failed" });
+      throw error;
+    }
+  };
+
+  const register = async (email: string, password: string) => {
+    dispatch({ type: "SET_LOADING" });
+
+    try {
+      const { token, user } = await auth.register(email, password);
+      AuthStorage.setStoredAuth({ token, user });
+      dispatch({ type: "SET_USER", payload: { user } });
+    } catch (error) {
+      dispatch({ type: "SET_ERROR", payload: "Registration failed" });
+      throw error;
+    }
   };
 
   const logout = () => {
-    setUser(null);
-    clearStorage();
+    AuthStorage.clearStoredAuth();
+    dispatch({ type: "SET_USER", payload: { user: null } });
+  };
+
+  const refreshUser = async () => {
+    dispatch({ type: "SET_LOADING" });
+
+    try {
+      const user = await auth.getCurrentUser();
+      dispatch({ type: "SET_USER", payload: { user } });
+    } catch (error) {
+      dispatch({ type: "SET_ERROR", payload: "Failed to refresh user" });
+      throw error;
+    }
   };
 
   const value: AuthContextType = {
-    user,
-    isLoading,
+    ...state,
     login,
+    loginWithToken,
+    register,
     logout,
-    isAuthenticated: !!user,
     refreshUser,
+    isAuthenticated: state.status === "authenticated",
+    isLoading: state.status === "loading",
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

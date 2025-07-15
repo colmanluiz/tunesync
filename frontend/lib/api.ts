@@ -1,11 +1,13 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { AuthStorage, AuthError } from "./auth";
+import { User } from "@/types/services";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:3001",
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = AuthStorage.getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -14,34 +16,91 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Clear auth data and redirect to login
-      localStorage.removeItem("token");
-      localStorage.removeItem("authData");
-
-      // Only redirect if we're not already on login page
-      if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
-        window.location.href = "/login";
-      }
+  async (error: AxiosError) => {
+    // Network errors
+    if (!error.response) {
+      throw new AuthError("Network error occurred", "network_error", error);
     }
+
+    // Auth errors
+    if (error.response.status === 401) {
+      // Clear auth data
+      AuthStorage.clearStoredAuth();
+
+      throw new AuthError("Authentication failed", "token_expired", error);
+    }
+
     return Promise.reject(error);
   }
 );
 
 export default api;
 
-export const login = async (email: string, password: string) => {
-  const response = await api.post("/auth/login", { email, password });
-  return response.data;
-};
-
-export const register = async (email: string, password: string) => {
-  const response = await api.post("/auth/register", { email, password });
-  return response.data;
+export interface LoginResponse {
+  token: string;
+  user: User;
 }
 
-export const logout = async () => {
-  const response = await api.post("/auth/logout");
-  return response.data;
+export interface RegisterResponse {
+  token: string;
+  user: User;
+}
+
+export const auth = {
+  login: async (email: string, password: string): Promise<LoginResponse> => {
+    try {
+      const response = await api.post<LoginResponse>("/auth/login", {
+        email,
+        password,
+      });
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new AuthError(
+          error.response?.data?.message || "Login failed",
+          "unknown",
+          error
+        );
+      }
+      throw error;
+    }
+  },
+
+  register: async (
+    email: string,
+    password: string
+  ): Promise<RegisterResponse> => {
+    try {
+      const response = await api.post<RegisterResponse>("/auth/register", {
+        email,
+        password,
+      });
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new AuthError(
+          error.response?.data?.message || "Registration failed",
+          "unknown",
+          error
+        );
+      }
+      throw error;
+    }
+  },
+
+  validateToken: async (token: string): Promise<boolean> => {
+    try {
+      await api.get("/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  getCurrentUser: async () => {
+    const response = await api.get("/auth/me");
+    return response.data.user;
+  },
 };

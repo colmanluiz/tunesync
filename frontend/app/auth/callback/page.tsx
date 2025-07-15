@@ -8,7 +8,7 @@ import { toast } from "sonner";
 export default function AuthCallbackPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { loginWithToken, isAuthenticated, isLoading } = useAuth();
   const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function AuthCallbackPage() {
         const userData = await response.json();
 
         // Login with the token and user data
-        await login(token, userData.user);
+        await loginWithToken(token, userData.user);
 
         // Use replace instead of push to prevent back button from triggering the loop
         router.replace("/dashboard");
@@ -63,7 +63,7 @@ export default function AuthCallbackPage() {
     };
 
     processAuth();
-  }, [searchParams, router, login, isAuthenticated, isLoading]);
+  }, [searchParams, router, loginWithToken, isAuthenticated, isLoading]);
 
   // Show loading state
   if (isLoading || isProcessing) {
