@@ -176,6 +176,9 @@ REDIS_URL="redis://localhost:6379"
 # App
 PORT=3001
 NODE_ENV=development
+
+# Frontend URL for OAuth redirects
+FRONTEND_URL="http://localhost:3000"
 ```
 
 ### Frontend Environment Variables
@@ -184,7 +187,7 @@ Create a `.env` file in the `frontend` directory:
 
 ```env
 # API
-NEXT_PUBLIC_API_URL="http://localhost:3001"
+NEXT_PUBLIC_BACKEND_URL="http://localhost:3001"
 
 # OAuth
 NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-client-id"

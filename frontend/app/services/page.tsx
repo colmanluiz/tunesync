@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard/sidebar";
 import { ServiceCard } from "@/components/dashboard/service-card";
 import { ServiceType } from "@/types/services";
@@ -60,9 +61,10 @@ const services = [
 ];
 
 export default function ServicesPage() {
+  const router = useRouter();
+
   const handleConnect = (serviceId: ServiceType) => {
-    // TODO: Implement service connection
-    console.log("Connecting to", serviceId);
+    router.push(`/services/${serviceId.toLowerCase()}/connect`);
   };
 
   const handleDisconnect = (serviceId: ServiceType) => {

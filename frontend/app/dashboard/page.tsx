@@ -13,6 +13,7 @@ import { ServiceType } from "@/types/services";
 import { SiYoutubemusic } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { ProtectedRoute } from "@/components/protected-route";
 
 // Mock data - replace with real data later
 const stats = [
@@ -96,63 +97,65 @@ const playlists = [
 
 export default function DashboardPage() {
   return (
-    <div className="flex min-h-screen">
-      <DashboardSidebar />
-      <div className="flex-1">
-        <div className="border-b">
-          <div className="flex h-16 items-center gap-4 px-8">
-            <h1 className="text-lg font-medium flex-1">Dashboard</h1>
-            <div className="flex justify-end">
-              <Button variant="primary" size="default">
-                <Plus className="size-4" />
-                Add Playlist
-              </Button>
+    <ProtectedRoute>
+      <div className="flex min-h-screen">
+        <DashboardSidebar />
+        <div className="flex-1">
+          <div className="border-b">
+            <div className="flex h-16 items-center gap-4 px-8">
+              <h1 className="text-lg font-medium flex-1">Dashboard</h1>
+              <div className="flex justify-end">
+                <Button variant="primary" size="default">
+                  <Plus className="size-4" />
+                  Add Playlist
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="p-8">
-          {/* Stats Grid */}
-          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <StatsCard key={stat.title} {...stat} />
-            ))}
-          </div>
-
-          {/* Connected Services */}
-          <div className="mb-8">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-medium">Connected Services</h2>
-              <Link
-                href="/services"
-                className="text-sm text-(--silver-600) hover:text-(--silver-800) hover:underline"
-              >
-                View All
-              </Link>
-            </div>
-            <div className="grid gap-4">
-              {services.map((service) => (
-                <ServiceCard key={service.name} {...service} />
+          <div className="p-8">
+            {/* Stats Grid */}
+            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {stats.map((stat) => (
+                <StatsCard key={stat.title} {...stat} />
               ))}
             </div>
-          </div>
 
-          {/* Recent Playlists */}
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-medium">Recent Playlists</h2>
-              <button className="text-sm text-muted-foreground hover:text-foreground">
-                View All
-              </button>
+            {/* Connected Services */}
+            <div className="mb-8">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-medium">Connected Services</h2>
+                <Link
+                  href="/services"
+                  className="text-sm text-(--silver-600) hover:text-(--silver-800) hover:underline"
+                >
+                  View All
+                </Link>
+              </div>
+              <div className="grid gap-4">
+                {services.map((service) => (
+                  <ServiceCard key={service.name} {...service} />
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {playlists.map((playlist) => (
-                <PlaylistCard key={playlist.name} {...playlist} />
-              ))}
+
+            {/* Recent Playlists */}
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-medium">Recent Playlists</h2>
+                <button className="text-sm text-muted-foreground hover:text-foreground">
+                  View All
+                </button>
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {playlists.map((playlist) => (
+                  <PlaylistCard key={playlist.name} {...playlist} />
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

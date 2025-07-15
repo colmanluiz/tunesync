@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, Shield, Star, Share } from "lucide-react";
+import { ArrowRight, Shield, Star, Share, Sparkles } from "lucide-react";
 import {
   MdDevices,
+  MdEmail,
+  MdEqualizer,
   MdLibraryMusic,
   MdMusicNote,
   MdPlaylistAdd,
@@ -833,15 +835,19 @@ export default function HomePage() {
                   <ul className="list-none list-inside text-(--silver-300) space-y-4">
                     <li className="flex items-center gap-2">
                       <MdPlaylistAdd className="w-5 h-5 text-(--honeysuckle-150)" />
-                      Transfer up to 5 playlists
+                      5 playlist conversions per month
                     </li>
                     <li className="flex items-center gap-2">
                       <MdMusicNote className="w-5 h-5 text-(--honeysuckle-150)" />
-                      100 songs per playlist
+                      Up to 50 songs per playlist
                     </li>
                     <li className="flex items-center gap-2">
-                      <MdSync className="w-5 h-5 text-(--honeysuckle-150)" />
-                      Basic sync features
+                      <MdEqualizer className="w-5 h-5 text-(--honeysuckle-150)" />
+                      Basic matching algorithm
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <MdEmail className="w-5 h-5 text-(--honeysuckle-150)" />
+                      Email support
                     </li>
                   </ul>
                 </div>
@@ -875,11 +881,15 @@ export default function HomePage() {
                   <ul className="list-none list-inside text-(--silver-300) space-y-4 text-md font-medium">
                     <li className="flex items-center gap-2">
                       <MdPlaylistAdd className="w-5 h-5 text-(--honeysuckle-150)" />
-                      Unlimited playlist transfers
+                      Unlimited playlist conversions
                     </li>
                     <li className="flex items-center gap-2">
                       <MdMusicNote className="w-5 h-5 text-(--honeysuckle-150)" />
                       Unlimited songs per playlist
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-(--honeysuckle-150)" />
+                      Advanced AI matching
                     </li>
                     <li className="flex items-center gap-2">
                       <MdSyncAlt className="w-5 h-5 text-(--honeysuckle-150)" />

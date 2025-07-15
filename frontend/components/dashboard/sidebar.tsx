@@ -25,7 +25,9 @@ export function DashboardSidebar() {
     <div className="flex h-full w-64 flex-col border-r bg-card">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b px-6">
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
       </div>
 
       {/* Navigation */}

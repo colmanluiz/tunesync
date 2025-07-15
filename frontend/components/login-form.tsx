@@ -60,7 +60,7 @@ export function LoginForm({
         login(response.token, userData);
 
         toast.success("Login successful!");
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (error: any) {
       console.error("Login error", error);
@@ -91,9 +91,9 @@ export function LoginForm({
                 <div className="flex flex-col gap-4">
                   <Button
                     variant="outline"
-                    className="w-full cursor-pointer"
+                    className="w-full cursor-pointer text-(--silver-500)"
                     onClick={() => {
-                      window.location.href = `${process.env.BACKEND_URL}/auth/google/login`;
+                      window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google/login`;
                     }}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@ export function LoginForm({
                   </Button>
                 </div>
                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                  <span className="bg-card text-muted-foreground relative z-10 px-2">
+                  <span className="bg-card text-(--silver-500) relative z-10 px-2">
                     Or continue with
                   </span>
                 </div>
@@ -150,7 +150,12 @@ export function LoginForm({
                       )}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading}
+                    variant="primary"
+                  >
                     {isLoading ? "Signing in..." : "Sign in"}
                   </Button>
                 </div>
@@ -158,7 +163,7 @@ export function LoginForm({
                   Don&apos;t have an account?{" "}
                   <Link
                     href="/register"
-                    className="underline underline-offset-4"
+                    className="underline underline-offset-4 text-(--honeysuckle-300) hover:text-(--honeysuckle-400)"
                   >
                     Register
                   </Link>

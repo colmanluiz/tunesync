@@ -6,7 +6,9 @@ import {
   Request,
   Get,
   Req,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import {
   ForgotPasswordDto,
   LoginDto,
@@ -62,9 +64,12 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
-  async googleAuthCallback(@Req() req) {
+  async googleAuthCallback(@Req() req, @Res() res: Response) {
     const googleUserProfile = req.user;
 
-    return this.authService.handleGoogleLogin(googleUserProfile);
+    const result = await this.authService.handleGoogleLogin(googleUserProfile);
+
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?token=${result.token}`;
+    res.redirect(redirectUrl);
   }
 }

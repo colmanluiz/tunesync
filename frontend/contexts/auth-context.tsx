@@ -22,6 +22,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("authData", JSON.stringify(data));
       // Also store token separately for API client
       localStorage.setItem("token", data.token);
+      // Update API client's token
+      api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
     } catch (error) {
       console.error("Failed to save auth data:", error);
     }
@@ -41,6 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.removeItem("authData");
       localStorage.removeItem("token");
+      // Clear API client's token
+      delete api.defaults.headers.common["Authorization"];
     } catch (error) {
       console.error("Failed to clear auth data:", error);
     }
@@ -48,10 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const validateToken = async (token: string): Promise<boolean> => {
     try {
-      // Set token temporarily for validation request
-      localStorage.setItem("token", token);
-      await api.get("/auth/me");
-      return true;
+      // Set token in API client
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      const response = await api.get("/auth/me");
+      return !!response.data.user;
     } catch (error) {
       console.error("Token validation failed:", error);
       return false;
@@ -89,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           // Token is invalid, clear storage
           clearStorage();
+          setUser(null);
         }
       }
 
@@ -98,7 +103,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
-  const login = (token: string, user: User) => {
+  const login = async (token: string, user: User) => {
+    // Validate token before setting user
+    const isValid = await validateToken(token);
+    if (!isValid) {
+      throw new Error("Invalid token");
+    }
+
     setUser(user);
     saveToStorage({ token, user });
   };

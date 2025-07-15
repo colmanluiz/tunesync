@@ -104,7 +104,7 @@ export function RegisterForm({
                 <div className="flex flex-col gap-4">
                   <Button
                     variant="outline"
-                    className="w-full cursor-pointer"
+                    className="w-full cursor-pointer text-(--silver-500)"
                     onClick={() => {
                       window.location.href = `${process.env.BACKEND_URL}/auth/google/login`;
                     }}
@@ -119,7 +119,7 @@ export function RegisterForm({
                   </Button>
                 </div>
                 <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                  <span className="bg-card text-muted-foreground relative z-10 px-2">
+                  <span className="bg-card text-(--silver-500) relative z-10 px-2">
                     Or continue with
                   </span>
                 </div>
@@ -202,13 +202,21 @@ export function RegisterForm({
                       )}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading}
+                    variant="primary"
+                  >
                     {isLoading ? "Creating account..." : "Register"}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
                   Already have an account?{" "}
-                  <Link href="/login" className="underline underline-offset-4">
+                  <Link
+                    href="/login"
+                    className="underline underline-offset-4 text-(--honeysuckle-300) hover:text-(--honeysuckle-400)"
+                  >
                     Login
                   </Link>
                 </div>
@@ -217,7 +225,7 @@ export function RegisterForm({
           </Form>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+      <div className="text-(--silver-500) *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
         By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
         and <a href="#">Privacy Policy</a>.
       </div>
