@@ -4,10 +4,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { TestModule } from './test/test.module';
-import { SpotifyModule } from './auth/spotify/spotify.module';
-// import { AuthModule } from './auth/auth.module';
 import { PlaylistModule } from './playlist/playlist.module';
 import { AuthModule } from './auth/auth.module';
+import { MusicServicesModule } from './music-services/music-services.module';
 
 @Module({
   imports: [
@@ -16,9 +15,9 @@ import { AuthModule } from './auth/auth.module';
     }),
     PrismaModule,
     TestModule,
-    SpotifyModule,
     PlaylistModule,
     AuthModule,
+    MusicServicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

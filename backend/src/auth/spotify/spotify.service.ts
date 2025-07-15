@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import queryString from 'query-string';
@@ -6,8 +6,12 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { JwtService } from '../jwt.service';
 
+/**
+ * @deprecated Use MusicServicesModule and SpotifyService from music-services/ instead
+ */
 @Injectable()
 export class SpotifyService {
+  private readonly logger = new Logger(SpotifyService.name);
   private readonly scopes = [
     'user-read-email', // Read user's email
     'user-read-private', // Read user's private information
@@ -22,7 +26,11 @@ export class SpotifyService {
     private readonly config: ConfigService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {
+    this.logger.warn(
+      'This SpotifyService is deprecated. Please use MusicServicesModule and SpotifyService from music-services/ instead',
+    );
+  }
 
   async getAuthUrl(state?: string): Promise<string> {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
