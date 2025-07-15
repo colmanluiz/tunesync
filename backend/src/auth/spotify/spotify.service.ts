@@ -22,7 +22,7 @@ export class SpotifyService {
     private readonly config: ConfigService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async getAuthUrl(state?: string): Promise<string> {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
@@ -217,6 +217,17 @@ export class SpotifyService {
     }
 
     return connection.accessToken;
+  }
+
+  async disconnect(userId: string) {
+    await this.prisma.serviceConnection.delete({
+      where: {
+        userId_serviceType: {
+          userId,
+          serviceType: 'SPOTIFY',
+        },
+      },
+    });
   }
 
   /**

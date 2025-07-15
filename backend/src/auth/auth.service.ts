@@ -117,13 +117,6 @@ export class AuthService {
     // 3. Update user password
   }
 
-  async logout(userId: string) {
-    // TODO: Implement logout
-    // For now, we'll just return success
-    // In a more advanced implementation, we might blacklist tokens
-    return { message: 'Logged out successfully' };
-  }
-
   async getCurrentUser(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -132,18 +125,7 @@ export class AuthService {
         email: true,
         name: true,
         emailVerified: true,
-        googleId: true,
         createdAt: true,
-        updatedAt: true,
-        serviceConnections: {
-          select: {
-            id: true,
-            serviceType: true,
-            serviceUserId: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
       },
     });
 
@@ -152,6 +134,26 @@ export class AuthService {
     }
 
     return { user };
+  }
+
+  async getConnectedServices(userId: string) {
+    const connections = await this.prisma.serviceConnection.findMany({
+      where: { userId },
+      select: {
+        serviceType: true,
+        serviceUserId: true,
+        createdAt: true,
+      },
+    });
+
+    return { services: connections };
+  }
+
+  async logout(userId: string) {
+    // TODO: Implement logout
+    // For now, we'll just return success
+    // In a more advanced implementation, we might blacklist tokens
+    return { message: 'Logged out successfully' };
   }
 
   async handleGoogleLogin(googleProfile) {

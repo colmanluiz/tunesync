@@ -19,7 +19,7 @@ export class SpotifyController {
     private readonly spotifyService: SpotifyService,
     private readonly prisma: PrismaService,
     private readonly stateService: StateService,
-  ) { }
+  ) {}
 
   @Post('state')
   @UseGuards(JwtAuthGuard)
@@ -104,7 +104,7 @@ export class SpotifyController {
             <p>Spotify authentication successful. You can close this window.</p>
           </body>
         </html>
-      `
+      `;
 
       res.setHeader('Content-Type', 'text/html');
       res.send(html);
@@ -119,6 +119,21 @@ export class SpotifyController {
 
       // res.redirect(`${process.env.FRONTEND_URL}/spotify/error?error=${error.message}&state=${state}`);
     }
+  }
+
+  @Post('disconnect')
+  @UseGuards(JwtAuthGuard)
+  async disconnect(@Req() req: Request) {
+    const user = req.user as any;
+    if (!user || !user.userId) {
+      throw new Error('User not authenticated');
+    }
+
+    await this.spotifyService.disconnect(user.userId);
+
+    return {
+      message: 'Spotify disconnected successfully',
+    };
   }
 
   @Get('refresh-token')
@@ -202,7 +217,9 @@ export class SpotifyController {
       throw new Error('Spotify connection not found');
     }
 
-    const profile = await this.spotifyService.getUserProfile(connection.accessToken);
+    const profile = await this.spotifyService.getUserProfile(
+      connection.accessToken,
+    );
 
     return profile;
   }

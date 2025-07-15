@@ -40,6 +40,12 @@ export class AuthController {
     return this.authService.getCurrentUser(req.user.userId);
   }
 
+  @Get('services')
+  @UseGuards(JwtAuthGuard)
+  async getConnectedServices(@Request() req) {
+    return this.authService.getConnectedServices(req.user.userId);
+  }
+
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req) {
