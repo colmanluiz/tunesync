@@ -1,6 +1,10 @@
 import { ServiceConnection, Track, Playlist, User } from '@prisma/client';
 
-export type ServiceType = 'SPOTIFY' | 'YOUTUBE' | 'APPLE-MUSIC' | 'DEEZER';
+export type ServiceType =
+  | 'SPOTIFY'
+  | 'YOUTUBE-MUSIC'
+  | 'APPLE-MUSIC'
+  | 'DEEZER';
 
 export interface MusicServiceConfig {
   clientId: string;
