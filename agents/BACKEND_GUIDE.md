@@ -20,10 +20,10 @@ Remaining Tasks:
 
 ### Phase 2: Service Integration
 
-- [ ] Complete Spotify integration
-  - [ ] Playlist fetching
-  - [ ] Track management
-  - [ ] User profile handling
+- [x] Complete Spotify integration
+  - [x] Playlist fetching
+  - [x] Track management
+  - [x] User profile handling
 - [ ] YouTube Music integration
   - [ ] OAuth implementation
   - [ ] API wrapper development

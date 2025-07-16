@@ -8,7 +8,9 @@ import {
   Req,
   Param,
   Logger,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MusicServiceFactory } from './music-service.factory';
 import { ServiceType } from './interfaces/music-service.interface';
@@ -154,6 +156,99 @@ export class MusicServicesController {
       return {
         success: false,
         message: `Failed to get recommendations: ${error.message}`,
+      };
+    }
+  }
+
+  // Service Connection Endpoints
+  @Get(':service/auth-url')
+  @UseGuards(JwtAuthGuard)
+  async getAuthUrl(
+    @Param('service') serviceType: ServiceType,
+    @Req() req: RequestWithUser,
+  ) {
+    try {
+      const service = this.musicServiceFactory.getService(serviceType);
+      const state = `${(req as any).user.userId}:${Date.now()}`;
+
+      const authUrl = service.getAuthUrl(state);
+
+      return {
+        success: true,
+        authUrl,
+        state,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get auth URL for ${serviceType}:`, error);
+      return {
+        success: false,
+        message: `Failed to get auth URL: ${error.message}`,
+      };
+    }
+  }
+
+  @Get(':service/callback')
+  async handleAuthCallback(
+    @Param('service') serviceType: ServiceType,
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Query('error') error: string,
+    @Res() res: Response,
+  ) {
+    try {
+      if (error) {
+        const redirectUrl = `${process.env.FRONTEND_URL}/settings/music-services?error=${encodeURIComponent(error)}`;
+        return res.redirect(redirectUrl);
+      }
+
+      if (!code || !state) {
+        const redirectUrl = `${process.env.FRONTEND_URL}/settings/music-services?error=missing_parameters`;
+        return res.redirect(redirectUrl);
+      }
+
+      // Extract user ID from state
+      const [userId] = state.split(':');
+      if (!userId) {
+        const redirectUrl = `${process.env.FRONTEND_URL}/settings/music-services?error=invalid_state`;
+        return res.redirect(redirectUrl);
+      }
+
+      const service = this.musicServiceFactory.getService(serviceType);
+      const result = await service.handleCallback(code, userId);
+
+      if (result.success) {
+        const redirectUrl = `${process.env.FRONTEND_URL}/settings/music-services?success=${encodeURIComponent(result.message)}`;
+        return res.redirect(redirectUrl);
+      } else {
+        const redirectUrl = `${process.env.FRONTEND_URL}/settings/music-services?error=${encodeURIComponent(result.message)}`;
+        return res.redirect(redirectUrl);
+      }
+    } catch (error) {
+      this.logger.error(`Auth callback failed for ${serviceType}:`, error);
+      const redirectUrl = `${process.env.FRONTEND_URL}/settings/music-services?error=connection_failed`;
+      return res.redirect(redirectUrl);
+    }
+  }
+
+  @Post(':service/disconnect')
+  @UseGuards(JwtAuthGuard)
+  async disconnectService(
+    @Param('service') serviceType: ServiceType,
+    @Req() req: RequestWithUser,
+  ) {
+    try {
+      const service = this.musicServiceFactory.getService(serviceType);
+      await service.disconnect((req as any).user.userId);
+
+      return {
+        success: true,
+        message: `Successfully disconnected from ${serviceType}`,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to disconnect from ${serviceType}:`, error);
+      return {
+        success: false,
+        message: `Failed to disconnect: ${error.message}`,
       };
     }
   }
